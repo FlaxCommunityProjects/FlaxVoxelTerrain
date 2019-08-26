@@ -49,6 +49,7 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\Source\Block.cs" />
     <Compile Include="..\..\..\Source\Chunk.cs" />
     <Compile Include="..\..\..\Source\ChunkManager.cs" />
     <Compile Include="..\..\..\Source\ChunkSegment.cs" />

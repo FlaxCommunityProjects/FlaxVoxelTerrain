@@ -41,21 +41,6 @@
 			"FogSunPower": 9.0
 		},
 		{
-			"TypeName": "FlaxEngine.EnvironmentProbe",
-			"ID": "da5e1c454a56377517d41686ebb0348f",
-			"ParentID": "28553d634087c67c711ebd96080482aa",
-			"Name": "Environment Probe",
-			"Transform": {
-				"Translation": {
-					"X": 0.0,
-					"Y": 72.001953125,
-					"Z": 0.0
-				}
-			},
-			"Radius": 500.0,
-			"ProbeID": "1e1fb3a7447c1265b15967b480549d98"
-		},
-		{
 			"TypeName": "FlaxEngine.DirectionalLight",
 			"ID": "deecf0894777293a4f478dadacf2a6f8",
 			"ParentID": "28553d634087c67c711ebd96080482aa",
@@ -79,9 +64,10 @@
 				"B": 0.8050000071525574,
 				"A": 1.0
 			},
+			"CastVolumetricShadow": false,
 			"MinRoughness": 0.0,
-			"ShadowsDistance": 2000.0,
-			"ShadowsFadeDistance": 50.0
+			"ShadowsDistance": 10000.0,
+			"ShadowsDepthBias": 0.009999999776482582
 		},
 		{
 			"TypeName": "FlaxEngine.SkyLight",
@@ -101,7 +87,7 @@
 					"W": 0.03057878464460373
 				}
 			},
-			"Brightness": 1.7999999523162842,
+			"Brightness": 3.5999999046325685,
 			"CustomTexture": "1e1fb3a7447c1265b15967b480549d98"
 		},
 		{
@@ -117,6 +103,8 @@
 			"ID": "c46dea0a49792beafcf8fbb051749932",
 			"ParentID": "b0d72c3746caebca055e1f921ca21c7c",
 			"V": {
+	"VoxelWorld": "8c6a0916457f5ec3b9a23f9eb7693cc5",
+	"SelectedCubeActor": "274e7efe471d80a0678391a9dc45fd53",
 	"MoveSpeed": 2.0,
 	"CameraSmoothing": 20.0
 }
@@ -149,13 +137,13 @@
 	"RenderMode": 0,
 	"RenderLocation": 0,
 	"Order": 0,
-	"ReceivesEvents": true,
+	"ReceivesEvents": false,
 	"IgnoreDepth": false,
 	"RenderCamera": "00000000000000000000000000000000",
 	"Distance": 500.0,
 	"Size": {
 		"X": 1090.8999,
-		"Y": 608.0
+		"Y": 577.13
 	}
 }
 		},
@@ -163,7 +151,7 @@
 			"TypeName": "FlaxEngine.UIControl",
 			"ID": "f5bc9a3c433f0de118f13291547d05bf",
 			"ParentID": "95d047b1410cd5b7bc2439a1cb284240",
-			"Name": "RealCamPos",
+			"Name": "DebugText",
 			"Transform": {
 				"Translation": {
 					"X": 10.0,
@@ -173,7 +161,7 @@
 			},
 			"Control": "FlaxEngine.GUI.Label",
 			"Data": {
-	"Text": "Camera position:",
+	"Text": "\n",
 	"TextColor": {
 		"R": 1.0,
 		"G": 1.0,
@@ -187,7 +175,7 @@
 		"A": 1.0
 	},
 	"HorizontalAlignment": 0,
-	"VerticalAlignment": 1,
+	"VerticalAlignment": 0,
 	"Wrapping": 0,
 	"Font": {
 		"Font": "4508d98f4aa1f0bd59362b81d47e38f4",
@@ -200,12 +188,12 @@
 		"Bottom": 0.0
 	},
 	"ClipText": false,
-	"AutoWidth": false,
-	"AutoHeight": false,
+	"AutoWidth": true,
+	"AutoHeight": true,
 	"ClipChildren": true,
 	"Size": {
-		"X": 100.0,
-		"Y": 20.0
+		"X": 0.0,
+		"Y": 28.0
 	},
 	"Scale": {
 		"X": 1.0,
@@ -235,23 +223,23 @@
 		},
 		{
 			"TypeName": "FlaxEngine.UIControl",
-			"ID": "54ad87364b55a17bebffd196096a5318",
+			"ID": "56c0901c4f3fbb1b7567ccabcc0495b3",
 			"ParentID": "95d047b1410cd5b7bc2439a1cb284240",
-			"Name": "ScaledCamPos",
+			"Name": "UIControl",
 			"Transform": {
 				"Translation": {
-					"X": 10.0,
-					"Y": 30.0,
+					"X": 495.449951171875,
+					"Y": 278.56500244140627,
 					"Z": 0.0
 				}
 			},
 			"Control": "FlaxEngine.GUI.Label",
 			"Data": {
-	"Text": "Virtual camera position:",
+	"Text": "+",
 	"TextColor": {
-		"R": 1.0,
-		"G": 1.0,
-		"B": 1.0,
+		"R": 0.00100004673,
+		"G": 0.00100004673,
+		"B": 0.00100004673,
 		"A": 1.0
 	},
 	"TextColorHighlighted": {
@@ -260,12 +248,12 @@
 		"B": 1.0,
 		"A": 1.0
 	},
-	"HorizontalAlignment": 0,
+	"HorizontalAlignment": 1,
 	"VerticalAlignment": 1,
 	"Wrapping": 0,
 	"Font": {
 		"Font": "4508d98f4aa1f0bd59362b81d47e38f4",
-		"Size": 9
+		"Size": 24
 	},
 	"Margin": {
 		"Left": 0.0,
@@ -286,8 +274,8 @@
 		"Y": 1.0
 	},
 	"Pivot": {
-		"X": 0.0,
-		"Y": 1.0
+		"X": 0.5,
+		"Y": 0.5
 	},
 	"Shear": {
 		"X": 0.0,
@@ -301,81 +289,7 @@
 		"A": 0.0
 	},
 	"DockStyle": 0,
-	"AnchorStyle": 0,
-	"Enabled": true,
-	"Visible": true,
-	"AutoFocus": false
-}
-		},
-		{
-			"TypeName": "FlaxEngine.UIControl",
-			"ID": "ce1853b94ae883905ba5a9b8b267de85",
-			"ParentID": "95d047b1410cd5b7bc2439a1cb284240",
-			"Name": "ChunkPos",
-			"Transform": {
-				"Translation": {
-					"X": 10.0,
-					"Y": 50.0,
-					"Z": 0.0
-				}
-			},
-			"Control": "FlaxEngine.GUI.Label",
-			"Data": {
-	"Text": "Chunk position:",
-	"TextColor": {
-		"R": 1.0,
-		"G": 1.0,
-		"B": 1.0,
-		"A": 1.0
-	},
-	"TextColorHighlighted": {
-		"R": 1.0,
-		"G": 1.0,
-		"B": 1.0,
-		"A": 1.0
-	},
-	"HorizontalAlignment": 0,
-	"VerticalAlignment": 1,
-	"Wrapping": 0,
-	"Font": {
-		"Font": "4508d98f4aa1f0bd59362b81d47e38f4",
-		"Size": 9
-	},
-	"Margin": {
-		"Left": 0.0,
-		"Right": 0.0,
-		"Top": 0.0,
-		"Bottom": 0.0
-	},
-	"ClipText": false,
-	"AutoWidth": false,
-	"AutoHeight": false,
-	"ClipChildren": true,
-	"Size": {
-		"X": 100.0,
-		"Y": 20.0
-	},
-	"Scale": {
-		"X": 1.0,
-		"Y": 1.0
-	},
-	"Pivot": {
-		"X": 0.0,
-		"Y": 1.0
-	},
-	"Shear": {
-		"X": 0.0,
-		"Y": 0.0
-	},
-	"Rotation": 0.0,
-	"BackgroundColor": {
-		"R": 0.0,
-		"G": 0.0,
-		"B": 0.0,
-		"A": 0.0
-	},
-	"DockStyle": 0,
-	"AnchorStyle": 0,
+	"AnchorStyle": 5,
 	"Enabled": true,
 	"Visible": true,
 	"AutoFocus": false
@@ -416,9 +330,30 @@
 			"ID": "8c6a0916457f5ec3b9a23f9eb7693cc5",
 			"ParentID": "e5e6d5c6427b82776faeba90851c9f6b",
 			"V": {
-	"CamPosLabel": "f5bc9a3c433f0de118f13291547d05bf",
-	"ChunkPosLabel": "ce1853b94ae883905ba5a9b8b267de85"
+	"DebugTextLabel": "f5bc9a3c433f0de118f13291547d05bf"
 }
+		},
+		{
+			"TypeName": "FlaxEngine.StaticModel",
+			"ID": "274e7efe471d80a0678391a9dc45fd53",
+			"ParentID": "74a68a984824b4510d12589f199ad68f",
+			"Name": "SelectionCube",
+			"Transform": {
+				"Scale": {
+					"X": 0.10100000351667404,
+					"Y": 0.10100000351667404,
+					"Z": 0.10100000351667404
+				}
+			},
+			"StaticFlags": 0,
+			"Model": "b43f0f8f4aaba3f3156896a5a22ba493",
+			"Buffer": {
+				"Entries": [
+					{
+						"Material": "d180a5dd4d9200c3a6ec0a906b8d45d0"
+					}
+				]
+			}
 		}
 	]
 }

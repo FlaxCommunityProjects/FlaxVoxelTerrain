@@ -1,15 +1,23 @@
 {
 	"ID": "f4c1c67842f6b745a6976aa8e7eff360",
 	"TypeName": "FlaxEditor.Content.Settings.InputSettings",
-	"EngineBuild": 6177,
+	"EngineBuild": 6184,
 	"Data": {
 	"ActionMappings": [
 		{
-			"Name": "Fire",
-			"Mode": 1,
+			"Name": "Build",
+			"Mode": 0,
+			"Key": 0,
+			"MouseButton": 3,
+			"GampadButton": 0,
+			"Gamepad": 0
+		},
+		{
+			"Name": "Dig",
+			"Mode": 0,
 			"Key": 0,
 			"MouseButton": 1,
-			"GampadButton": 13,
+			"GampadButton": 0,
 			"Gamepad": 0
 		}
 	],

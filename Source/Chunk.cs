@@ -103,5 +103,36 @@ namespace VoxelTerrain.Source
                 Segments[i].Destroy();
             }
         }
+
+        public Block GetBlockRelative(int x, int y, int z)
+        {
+            if (y < 0 || y >= SEGMENTS_PER_CHUNK * SEGMENT_SIZE) return null;
+            if (x < 0 || x >= SEGMENT_SIZE) return null;
+            if (z < 0 || z >= SEGMENT_SIZE) return null;
+
+            return Segments[y / SEGMENT_SIZE].Data[x, y % SEGMENT_SIZE, z];
+        }
+
+        public void SetBlockRelative(int x, int y, int z, Block block)
+        {
+            if (y < 0 || y >= SEGMENTS_PER_CHUNK * SEGMENT_SIZE) return;
+            if (x < 0 || x >= SEGMENT_SIZE) return;
+            if (z < 0 || z >= SEGMENT_SIZE) return;
+            Segments[y / SEGMENT_SIZE].Data[x, y % SEGMENT_SIZE, z] = block;
+
+            // Re-mesh self
+            Manager.UpdateChunk(this);
+
+            // Re-mesh affected neighbor chunks
+            if (x == 0)
+                Manager.UpdateChunk(ChunkPosition - Int2.UnitX);
+            else if (x == Chunk.SEGMENT_SIZE - 1)
+                Manager.UpdateChunk(ChunkPosition + Int2.UnitX);
+
+            if (z == 0)
+                Manager.UpdateChunk(ChunkPosition - Int2.UnitY);
+            else if (z == Chunk.SEGMENT_SIZE - 1)
+                Manager.UpdateChunk(ChunkPosition + Int2.UnitY);
+        }
     }
 }

@@ -4,16 +4,16 @@
 	</MainWindow>
 	<MasterPanel SelectedTab="0">
 		<Window Typename="::FlaxEditor.Windows.EditGameWindow">
-			<Data GridEnabled="False" NearPlane="8" FarPlane="200000" FieldOfView="60" MovementSpeed="4" OrthographicScale="1" UseOrthographicProjection="False" />
+			<Data GridEnabled="True" NearPlane="8" FarPlane="20000" FieldOfView="60" MovementSpeed="1" OrthographicScale="1" UseOrthographicProjection="False" />
 		</Window>
+		<Window Typename="::FlaxEditor.Windows.GameWindow" />
 		<Panel DockState="10" SplitterValue="0.24" SelectedTab="0">
 			<Window Typename="::FlaxEditor.Windows.PropertiesWindow" />
-			<Panel DockState="7" SplitterValue="0.25" SelectedTab="1">
+			<Panel DockState="7" SplitterValue="0.25" SelectedTab="0">
 				<Window Typename="::FlaxEditor.Windows.ToolboxWindow" />
-				<Window Typename="::FlaxEditor.Windows.GameWindow" />
 			</Panel>
 		</Panel>
-		<Panel DockState="9" SplitterValue="0.3375394" SelectedTab="1">
+		<Panel DockState="9" SplitterValue="0.2933754" SelectedTab="0">
 			<Window Typename="::FlaxEditor.Windows.ContentWindow">
 				<Data Split="0.2" Scale="1" />
 			</Window>

@@ -1,10 +1,10 @@
 {
 	"ID": "9eba3d2a4cee4c099117f49c5dffc171",
 	"TypeName": "FlaxEditor.Content.Settings.GameSettings",
-	"EngineBuild": 6179,
+	"EngineBuild": 6184,
 	"Data": {
-	"ProductName": "BasicTemplate",
-	"CompanyName": "Flax",
+	"ProductName": "VoxelTerrain",
+	"CompanyName": "Lukas Jech",
 	"Version": "1.0",
 	"FirstScene": "74a68a984824b4510d12589f199ad68f",
 	"Time": "9acd18b0496064d35799f390d3a2b374",
