@@ -1,6 +1,7 @@
 #Ignore Flax Engine files
 Logs/
-Output/
+Cache/
+
 
 #Ignore thumbnails created by Windows
 Thumbs.db

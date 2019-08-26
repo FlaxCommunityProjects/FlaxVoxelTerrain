@@ -1,7 +1,7 @@
 D:\Flax\Flax Projects\VoxelTerrain\Cache\Cooker\Win\Cache\obj\Release\.NETFramework,Version=v4.5.AssemblyAttribute.cs
-D:\Flax\Flax Projects\VoxelTerrain\Cache\Cooker\Win\Cache\bin\FlaxEngine.dll
-D:\Flax\Flax Projects\VoxelTerrain\Cache\Cooker\Win\Cache\bin\Newtonsoft.Json.dll
 D:\Flax\Flax Projects\VoxelTerrain\Cache\Cooker\Win\Cache\bin\Assembly.pdb
 D:\Flax\Flax Projects\VoxelTerrain\Cache\Cooker\Win\Cache\bin\Assembly.dll
 D:\Flax\Flax Projects\VoxelTerrain\Cache\Cooker\Win\Cache\obj\Release\Assembly.dll
 D:\Flax\Flax Projects\VoxelTerrain\Cache\Cooker\Win\Cache\obj\Release\Assembly.pdb
+D:\Flax\Flax Projects\VoxelTerrain\Cache\Cooker\Win\Cache\bin\FlaxEngine.dll
+D:\Flax\Flax Projects\VoxelTerrain\Cache\Cooker\Win\Cache\bin\Newtonsoft.Json.dll
