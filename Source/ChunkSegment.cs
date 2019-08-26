@@ -1,68 +1,93 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using FlaxEngine;
 
 namespace VoxelTerrain.Source
 {
 	public class ChunkSegment
 	{
+        private class ChunkMeshData
+        {
+            public List<Vector3> Vertices = new List<Vector3>();
+            public List<Vector3> Normals = new List<Vector3>();
+            public  List<int> Triangles = new List<int>();
+        }
+
         [HideInEditor] public Block[,,] Data = new Block[Chunk.SEGMENT_SIZE, Chunk.SEGMENT_SIZE, Chunk.SEGMENT_SIZE];
 
-        private Model _tempModel;
 
         //public MaterialBase Material;
 
-        private bool _updateMesh = false;
-
-        private List<Vector3> _vertices = new List<Vector3>();
-        private List<Vector3> _normals = new List<Vector3>();
-        private List<int> _indices = new List<int>();
 
         private readonly int yOffset = 0;
-
         public Chunk Parent;
+
+        private StaticModel chunkModel;
+        private MeshCollider chunkCollider;
+
+        private Model chunkMesh;
+        private CollisionData chunkCollisionData;
+
+        private ChunkMeshData latestMeshData = null;
 
         public ChunkSegment(Actor actor, int yo, Chunk parent)
         {
             Parent = parent;
             yOffset = yo;
-            var model = _tempModel ?? Content.CreateVirtualAsset<Model>();
-            _tempModel = model;
-            model.SetupLODs(1);
+            chunkMesh = Content.CreateVirtualAsset<Model>();
+            chunkMesh.SetupLODs(1);
+
+            chunkCollisionData = Content.CreateVirtualAsset<CollisionData>();
 
             // Create or reuse child model actor
-            var childModel = actor.AddChild<StaticModel>();
-            childModel.Model = model;
-           // childModel.Entries[0].Material = Material;
+            chunkModel = actor.AddChild<StaticModel>();
+            chunkModel.Model = chunkMesh;
 
-           // Debug.Log("Hi");
+            chunkCollider = actor.AddChild<MeshCollider>();
+            chunkCollider.CollisionData = chunkCollisionData;
+
+            chunkCollider.IsActive = chunkModel.IsActive = false;
         }
 
         public void Update()
         {
-            if (_tempModel && _updateMesh)
+            if (latestMeshData != null && chunkModel && latestMeshData.Triangles.Count > 0)
             {
-                _updateMesh = false;
-                if(_indices.Count > 0)
-                    _tempModel.LODs[0].Meshes[0].UpdateMesh(_vertices.ToArray(), _indices.ToArray(), _normals.ToArray());
+                chunkMesh.LODs[0].Meshes[0].UpdateMesh(latestMeshData.Vertices.ToArray(), latestMeshData.Triangles.ToArray(), latestMeshData.Normals.ToArray());
+                latestMeshData = null;
             }
         }
 
         public void Destroy()
         {
-            FlaxEngine.Object.Destroy(ref _tempModel);
+            FlaxEngine.Object.Destroy(ref chunkMesh);
         }
 
         public void GenerateSegment()
         {
-            _updateMesh = false;
-            _vertices.Clear();
-            _indices.Clear();
-            _normals.Clear();
-            
-            Greedy();
+            var meshData = new ChunkMeshData();
 
-            _updateMesh = true;
+            // Generate mesh
+            Greedy(meshData);
+
+            // Hide chunk with old data if chunk mesh is empty since we can't push empty mesh
+            chunkCollider.IsActive = chunkModel.IsActive = meshData.Triangles.Count > 0;
+
+            // Early out (upload only if we have some mesh)
+            if (meshData.Triangles.Count == 0) return;
+
+            // Wait until chunk is loaded
+            // while(!chunkMesh.IsLoaded && chunkMesh.LoadedLODs < 1) Thread.Sleep(10);
+
+            // Update mesh
+            //chunkMesh.LODs[0].Meshes[0].UpdateMesh(meshData.Vertices.ToArray(), meshData.Triangles.ToArray(), meshData.Normals.ToArray());
+
+            // Update collisions
+            // chunkCollisionData.CookCollision(CollisionDataType.TriangleMesh, chunkMesh);
+            latestMeshData = meshData;
         }
 
         Block GetVoxelFace(int x, int y, int z, int side)
@@ -104,7 +129,7 @@ namespace VoxelTerrain.Source
         private static int TOP = 4;
         private static int BOTTOM = 5;
 
-        private void Quad(Vector3 bottomLeft,
+        private void Quad(ChunkMeshData meshData, Vector3 bottomLeft,
             Vector3 topLeft,
             Vector3 topRight,
             Vector3 bottomRight,
@@ -118,18 +143,18 @@ namespace VoxelTerrain.Source
             topLeft.Y += yOffset;
             topRight.Y += yOffset;
 
-            int offset = (int)_vertices.Count;
+            int offset = (int)meshData.Vertices.Count;
 
-            _vertices.AddRange(new []{topLeft, topRight, bottomLeft, bottomRight});
-            _indices.AddRange(backFace ? new int[] { 2 + offset, 3 + offset, 1 + offset, 1 + offset, 0 + offset, 2 + offset } : new int[] { 2 + offset, 0 + offset, 1 + offset, 1 + offset, 3 + offset, 2 + offset });
+            meshData.Vertices.AddRange(new []{topLeft, topRight, bottomLeft, bottomRight});
+            meshData.Triangles.AddRange(backFace ? new int[] { 2 + offset, 3 + offset, 1 + offset, 1 + offset, 0 + offset, 2 + offset } : new int[] { 2 + offset, 0 + offset, 1 + offset, 1 + offset, 3 + offset, 2 + offset });
             var normal = Vector3.Normalize(Vector3.Cross(topRight - topLeft, bottomRight - topLeft));
             if (backFace)
                 normal *= -1;
 
-            _normals.AddRange(new []{normal, normal, normal, normal});
+            meshData.Normals.AddRange(new []{normal, normal, normal, normal});
         }
 
-        private void Greedy()
+        private void Greedy(ChunkMeshData meshData)
         {
 
 
@@ -228,7 +253,7 @@ namespace VoxelTerrain.Source
                                         dv[2] = 0;
                                         dv[v] = h;
 
-                                        Quad(new Vector3(x[0], x[1], x[2]),
+                                        Quad(meshData, new Vector3(x[0], x[1], x[2]),
                                              new Vector3(x[0] + du[0], x[1] + du[1], x[2] + du[2]),
                                              new Vector3(x[0] + du[0] + dv[0], x[1] + du[1] + dv[1], x[2] + du[2] + dv[2]),
                                              new Vector3(x[0] + dv[0], x[1] + dv[1], x[2] + dv[2]),
