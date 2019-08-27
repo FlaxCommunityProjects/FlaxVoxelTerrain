@@ -100,6 +100,16 @@
 			"Far": 25000.0
 		},
 		{
+			"TypeName": "BasicTemplate.FreeCamera",
+			"ID": "28b400aa4a23a73522af6eb048c4926c",
+			"ParentID": "b0d72c3746caebca055e1f921ca21c7c",
+			"V": {
+	"World": "aec7459749a7b994b2e8f48dee1b22e6",
+	"MoveSpeed": 1.0,
+	"CameraSmoothing": 20.0
+}
+		},
+		{
 			"TypeName": "FlaxEngine.UICanvas",
 			"ID": "95d047b1410cd5b7bc2439a1cb284240",
 			"ParentID": "b0d72c3746caebca055e1f921ca21c7c",

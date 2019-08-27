@@ -39,11 +39,13 @@ namespace FlaxVoxel
         /// <summary>
         /// Sets the block at specified X,Y,Z
         /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <param name="z"></param>
-        /// <param name="block"></param>
-        public void SetBlock(int x, int y, int z, Block block)
+        /// <param name="x">X</param>
+        /// <param name="y">Y</param>
+        /// <param name="z">Z</param>
+        /// <param name="block">The block</param>
+        /// <param name="chunkUpdate">If true, will queue segment for update else not</param>
+        /// <param name="updateNeighbors">If true will queue neighbors for update if needed else not</param>
+        public void SetBlock(int x, int y, int z, Block block, bool chunkUpdate = true, bool updateNeighbors = true)
         {
             // TODO: coordinate validation checks if direct access is enabled
 
@@ -69,7 +71,10 @@ namespace FlaxVoxel
             _maxZ = Math.Max(_maxZ, z);
 
             // Update self mesh
-            /*ParentChunk.World.UpdateQueue.Add(UpdateEntry.UpdateSegment(this));
+            if(chunkUpdate)
+                ParentChunk.World.UpdateQueue.Add(UpdateEntry.UpdateSegment(this));
+
+            if(!updateNeighbors) return;
 
             // Handle X neighbors
             if (x == 0) ParentChunk.World.UpdateQueue.Add(UpdateEntry.UpdateSegment(ParentChunk.WorldPosition - Int2.UnitX, _segmentIndex));
@@ -81,7 +86,7 @@ namespace FlaxVoxel
 
             // Handle Z neighbors
             if (z == 0) ParentChunk.World.UpdateQueue.Add(UpdateEntry.UpdateSegment(ParentChunk.WorldPosition - Int2.UnitY, _segmentIndex));
-            if (z == VoxelWorld.Configuration.ChunkSegmentSize - 1) ParentChunk.World.UpdateQueue.Add(UpdateEntry.UpdateSegment(ParentChunk.WorldPosition + Int2.UnitY, _segmentIndex));*/
+            if (z == VoxelWorld.Configuration.ChunkSegmentSize - 1) ParentChunk.World.UpdateQueue.Add(UpdateEntry.UpdateSegment(ParentChunk.WorldPosition + Int2.UnitY, _segmentIndex));
         }
 
         public Block GetBlock(int x, int y, int z)

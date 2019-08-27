@@ -83,13 +83,13 @@ namespace FlaxVoxel
         /// <param name="y">Y</param>
         /// <param name="z">Z</param>
         /// <param name="block">Block to set (or null for empty)</param>
-        public void SetBlock(int x, int y, int z, Block block)
+        public void SetBlock(int x, int y, int z, Block block, bool chunkUpdate = true, bool updateNeighbors = true)
         {
             var offsetX = x >= 0 ? 0 : Configuration.ChunkSegmentSize;
             var offsetZ = z >= 0 ? 0 : Configuration.ChunkSegmentSize;
 
             if (Chunks.TryGetValue(new Int2((x - offsetX) / Configuration.ChunkSegmentSize, (z - offsetZ) / Configuration.ChunkSegmentSize), out var chunk))
-                chunk.SetBlock(offsetX + x % Configuration.ChunkSegmentSize, y, offsetZ + z % Configuration.ChunkSegmentSize, block);
+                chunk.SetBlock(offsetX + x % Configuration.ChunkSegmentSize, y, offsetZ + z % Configuration.ChunkSegmentSize, block, chunkUpdate, updateNeighbors);
         }
     }
 }

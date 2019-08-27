@@ -39,43 +39,9 @@ namespace BasicTemplate
 
             if (World !=  null && Input.GetKeyDown(Keys.Q))
             {
-                for (int x = 0; x < 16; x++)
-                for (int y = 0; y < 16; y++)
-                for (int z = 0; z < 16; z++)
-                {
-                    var m2 = (x + y + z) % 2 == 0;
-                    var color = new Color32(/*m2 ? */(byte)255 /*: (byte)0*/, 255,255,255);
-                    World.SetBlock(x, y, z,
-                        (x+y+z) < 16 ? new Block()
-                        {
-                            Color = color,
-                            IsTransparent = false, Id = 1
-                        } : null);
-                }
-
-                foreach (var chunk in World.Chunks)
-                {
-                    World.UpdateQueue.Add(UpdateEntry.UpdateChunk(chunk.Value));
-                }
+                World.Chunks[Int2.Zero].GenerateChunk();
             }
 
-            if (World != null && Input.GetKeyDown(Keys.E))
-            {
-             /*   for (int x = -15; x < 16; x++)
-                    World.SetBlock(x, cy, 0, null);
-                cy--;
-                for (int x = -15; x < 16; x++)
-                    World.SetBlock(x, cy, 0, null);
-                cy--;
-                if (cy < 0)
-                        cy = 0;
-
-
-                foreach (var chunk in World.Chunks)
-                {
-                    World.UpdateQueue.Add(UpdateEntry.UpdateChunk(chunk.Value));
-                }*/
-            }
         }
 
        /* public override void OnDebugDraw()

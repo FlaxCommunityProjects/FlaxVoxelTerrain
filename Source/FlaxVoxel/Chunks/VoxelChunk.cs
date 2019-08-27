@@ -9,7 +9,7 @@ namespace FlaxVoxel
 {
     // TODO: Despawn empty segments
     // TODO: Instead of Segments.Count use local cached variable (might be faster)
-    public class VoxelChunk : Script
+    public partial class VoxelChunk : Script
     {
         public readonly List<ChunkSegment> Segments = new List<ChunkSegment>();
         public VoxelWorld World;
@@ -45,7 +45,7 @@ namespace FlaxVoxel
             return i < Segments.Count ? Segments[i] : null;
         }
 
-        public void SetBlock(int x, int y, int z, Block block)
+        public void SetBlock(int x, int y, int z, Block block, bool chunkUpdate = true, bool updateNeighbors = true)
         {
             if(x < 0 || y < 0 || z < 0 || x >= VoxelWorld.Configuration.ChunkSegmentSize || z >= VoxelWorld.Configuration.ChunkSegmentSize) return;
 
@@ -53,7 +53,7 @@ namespace FlaxVoxel
             if (chunkIndex <= Segments.Count) SpawnSegments(chunkIndex+1);
 
             var rY = y % VoxelWorld.Configuration.ChunkSegmentSize;
-            Segments[chunkIndex].SetBlock(x, rY, z, block);
+            Segments[chunkIndex].SetBlock(x, rY, z, block, chunkUpdate, updateNeighbors);
         }
 
         public Block GetBlock(int x, int y, int z)
