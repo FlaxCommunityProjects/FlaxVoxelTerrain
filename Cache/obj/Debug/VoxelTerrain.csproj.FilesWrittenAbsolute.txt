@@ -1,8 +1,0 @@
-D:\Flax\Flax Projects\VoxelTerrain\Cache\obj\Debug\.NETFramework,Version=v4.5.AssemblyAttribute.cs
-D:\Flax\Flax Projects\VoxelTerrain\Cache\bin\Assembly.pdb
-D:\Flax\Flax Projects\VoxelTerrain\Cache\bin\Assembly.dll
-D:\Flax\Flax Projects\VoxelTerrain\Cache\obj\Debug\Assembly.dll
-D:\Flax\Flax Projects\VoxelTerrain\Cache\obj\Debug\Assembly.pdb
-D:\Flax\Flax Projects\VoxelTerrain\Cache\bin\FlaxEngine.dll
-D:\Flax\Flax Projects\VoxelTerrain\Cache\bin\Newtonsoft.Json.dll
-D:\Flax\Flax Projects\VoxelTerrain\Cache\bin\FlaxEditor.dll
