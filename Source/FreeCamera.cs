@@ -44,7 +44,7 @@ namespace BasicTemplate
                 for (int z = 0; z < 16; z++)
                 {
                     var m2 = (x + y + z) % 2 == 0;
-                    var color = new Color32(/*m2 ? */(byte)255 /*: (byte)0*/, 255,255,255);
+                    var color = new Color32(m2 ? (byte)255 : (byte)0, 255,255,255);
                     World.SetBlock(x, y, z,
                         (x+y+z) < 16 ? new Block()
                         {

@@ -170,10 +170,7 @@ namespace FlaxVoxel
                                 block = GetVoxelFace(x[0], x[1], x[2], side);
                                 block2 = GetVoxelFace(x[0] + q[0], x[1] + q[1], x[2] + q[2], side);
 
-
-                                mask[n++] = ((block != null && block2 != null && block.Equals(block2)))
-                                            ? null
-                                            : backFace ? block2 : block;
+                                mask[n++] = block != null && block2 != null && !block.IsTransparent  && !block2.IsTransparent ? null : backFace ? block2 : block;
                             }
                         }
 
