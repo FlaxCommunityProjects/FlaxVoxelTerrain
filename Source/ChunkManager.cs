@@ -3,11 +3,13 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using FlaxEngine;
 using FlaxEngine.GUI;
+using FlaxEngine.Rendering;
 using FlaxEngine.Utilities;
 using Debug = FlaxEngine.Debug;
 
@@ -50,7 +52,7 @@ namespace VoxelTerrain.Source
     public class ChunkManager : Script
     {
         // Constants
-        public const int ChunkRadius = 10;
+        public const int ChunkRadius = 15;
         public const int ChunkUnloadOffset = 2;
         public const int LoaderThreadCount = 4;
         public const int UnloaderThreadCount = 4;
@@ -70,11 +72,11 @@ namespace VoxelTerrain.Source
         private readonly Thread[] _loadWorkers = new Thread[LoaderThreadCount];
 
         // Unload queue
-        private readonly Queue<Chunk> _unloadQueue = new Queue<Chunk>();
+        /*private readonly Queue<Chunk> _unloadQueue = new Queue<Chunk>();
         private readonly object _unloadQueueLocker = new object();
-        private readonly Thread[] _unloadWorkers = new Thread[UnloaderThreadCount];
+        private readonly Thread[] _unloadWorkers = new Thread[UnloaderThreadCount];*/
 
-        // Update queue
+        // UpdateSegment queue
         private readonly List<Int2> _updateQueue = new List<Int2>();
         private readonly object _updateQueueLocker = new object();
         private readonly Thread[] _updateWorkers = new Thread[UpdateThreadCount];
@@ -91,8 +93,8 @@ namespace VoxelTerrain.Source
             for (var i = 0; i < LoaderThreadCount; i++)
                 _loadWorkers[i] = new Thread(LoadWork) {IsBackground = true, Priority = ThreadPriority.Normal};
 
-            for (var i = 0; i < UnloaderThreadCount; i++)
-                _unloadWorkers[i] = new Thread(UnloadWork) { IsBackground = true, Priority = ThreadPriority.Lowest };
+            /*for (var i = 0; i < UnloaderThreadCount; i++)
+                _unloadWorkers[i] = new Thread(UnloadWork) { IsBackground = true, Priority = ThreadPriority.Lowest };*/
 
             for (var i = 0; i < UpdateThreadCount; i++)
                 _updateWorkers[i] = new Thread(UpdateWork) { IsBackground = true, Priority = ThreadPriority.Highest };
@@ -100,8 +102,8 @@ namespace VoxelTerrain.Source
             for (var i = 0; i < LoaderThreadCount; i++)
                 _loadWorkers[i].Start();
 
-            for (var i = 0; i < UnloaderThreadCount; i++)
-                _unloadWorkers[i].Start();
+            /*for (var i = 0; i < UnloaderThreadCount; i++)
+                _unloadWorkers[i].Start();*/
 
             for (var i = 0; i < UpdateThreadCount; i++)
                 _updateWorkers[i].Start();
@@ -137,6 +139,7 @@ namespace VoxelTerrain.Source
             if (intCamPos.Y < 0) currentChunk.Y--;
 
             StringBuilder debugText = new StringBuilder();
+            debugText.AppendLine("View mode: " + MainRenderTask.Instance.View.Mode);
             debugText.AppendLine($"Camera position (real):{camPos / Chunk.BLOCK_SIZE_CM} ({camPos})");
             debugText.AppendLine($"Chunk: X:{currentChunk.X} Z:{currentChunk.Y}");
             debugText.AppendLine($"FPS: {Time.FramesPerSecond}");
@@ -144,11 +147,11 @@ namespace VoxelTerrain.Source
             debugText.AppendLine($"PUPS: {lastFUPS} ({Time.PhysicsFPS})");
             debugText.AppendLine("QUEUE STATS:");
 
-            lock(_loadQueueLocker)
+            lock (_loadQueueLocker)
                 debugText.AppendLine("    LOAD: " + _loadQueue.Count);
 
-            lock (_unloadQueueLocker)
-                debugText.AppendLine("    UNLOAD: " + _unloadQueue.Count);
+            /* lock (_unloadQueueLocker)
+                 debugText.AppendLine("    UNLOAD: " + _unloadQueue.Count);*/
 
             lock (_updateQueueLocker)
                 debugText.AppendLine("    UPDATE: " + _updateQueue.Count);
@@ -176,18 +179,21 @@ namespace VoxelTerrain.Source
             // Remove chunks outside of view
 
             var toRemove = _chunks.AsParallel().Where(c =>
-                Int2.Distance(c.Key, currentChunk) > ChunkRadius + ChunkUnloadOffset && 
+                Int2.Distance(c.Key, currentChunk) > ChunkRadius + ChunkUnloadOffset &&
                 !c.Value.IsQueuedForUnload &&
                 !c.Value.IsQueuedForLoad
-            ).Select(c=>c.Value).ToArray();
+            ).Select(c => c.Value).ToArray();
 
             if (toRemove.Length == 0) return;
 
             foreach (var chunk in toRemove)
+            {
                 chunk.IsQueuedForUnload = true;
+                Destroy(chunk.Actor);
+            }
 
-            lock (_unloadQueueLocker)
-                _unloadQueue.EnqueueRange(toRemove);
+            /* lock (_unloadQueueLocker)
+                 _unloadQueue.EnqueueRange(toRemove);*/
         }
 
         private void SpawnChunk(Int2 pos)
@@ -329,15 +335,21 @@ namespace VoxelTerrain.Source
 
         public override void OnDestroy()
         {
+            lock (_loadQueueLocker)
+                _loadQueue.Clear();
+
+            lock(_updateQueueLocker)
+                _updateQueue.Clear();
+
             _workerExitFlag = true;
             for (var i = 0; i < LoaderThreadCount; i++)
-                _loadWorkers[i].Join();
+                _loadWorkers[i].Abort();
 
-            for (var i = 0; i < UnloaderThreadCount; i++)
-                _unloadWorkers[i].Join();
+            /*for (var i = 0; i < UnloaderThreadCount; i++)
+                _unloadWorkers[i].Join();*/
 
             for (var i = 0; i < UpdateThreadCount; i++)
-                _updateWorkers[i].Join();
+                _updateWorkers[i].Abort();
         }
 
         private void LoadWork()
@@ -374,7 +386,7 @@ namespace VoxelTerrain.Source
             }
         }
 
-        private void UnloadWork()
+        /*private void UnloadWork()
         {
             while (!_workerExitFlag)
                 try
@@ -411,7 +423,7 @@ namespace VoxelTerrain.Source
                     Debug.LogException(ex);
                     Thread.Sleep(1000);
                 }
-        }
+        }*/
 
         private void UpdateWork()
         {
@@ -430,17 +442,23 @@ namespace VoxelTerrain.Source
                         }
                     }
 
-                    if (pos!= null && _chunks.TryGetValue(pos.Value, out var chunk))
+                    if (pos != null && _chunks.TryGetValue(pos.Value, out var chunk))
                     {
                         chunk.UpdateChunk();
                     }
 
                     Thread.Sleep(pos == null ? 250 : 25);
                 }
+                catch (ThreadAbortException)
+                {
+                    return;
+                }
                 catch (Exception ex)
                 {
                     Debug.LogException(ex);
                 }
+                
+                
         }
     }
 }

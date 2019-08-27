@@ -1,7 +1,8 @@
 using System;
 using FlaxEngine;
 using FlaxEngine.Rendering;
-using VoxelTerrain.Source;
+using FlaxVoxel;
+//using VoxelTerrain.Source;
 
 namespace BasicTemplate
 {
@@ -16,30 +17,77 @@ namespace BasicTemplate
         private float pitch;
         private float yaw;
 
-        public ChunkManager VoxelWorld;
-        public Actor SelectedCubeActor;
+        /*public ChunkManager VoxelWorld;
+        public Actor SelectedCubeActor;*/
 
+        public VoxelWorld World;
+        private int cy = 0;
         public override void OnUpdate()
         {
-            Screen.CursorVisible = false;
-            Screen.CursorLock = CursorLockMode.Locked;
+           /* Screen.CursorVisible = false;
+            Screen.CursorLock = CursorLockMode.Locked;*/
 
-            Vector2 mouseDelta = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
+           /* Vector2 mouseDelta = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
             pitch = Mathf.Clamp(pitch + mouseDelta.Y, -88, 88);
             yaw += mouseDelta.X;
+            */
+            /*
+                        if (Input.GetKeyDown(Keys.E))
+                            MainRenderTask.Instance.View.Mode = ViewMode.Default;
+                        if (Input.GetKeyDown(Keys.Q))
+                            MainRenderTask.Instance.View.Mode = ViewMode.Wireframe;*/
 
+            if (World !=  null && Input.GetKeyDown(Keys.Q))
+            {
+                for (int x = 0; x < 16; x++)
+                for (int y = 0; y < 16; y++)
+                for (int z = 0; z < 16; z++)
+                {
+                    var m2 = (x + y + z) % 2 == 0;
+                    var color = new Color32(/*m2 ? */(byte)255 /*: (byte)0*/, 255,255,255);
+                    World.SetBlock(x, y, z,
+                        (x+y+z) < 16 ? new Block()
+                        {
+                            Color = color,
+                            IsTransparent = false, Id = 1
+                        } : null);
+                }
+
+                foreach (var chunk in World.Chunks)
+                {
+                    World.UpdateQueue.Add(UpdateEntry.UpdateChunk(chunk.Value));
+                }
+            }
+
+            if (World != null && Input.GetKeyDown(Keys.E))
+            {
+             /*   for (int x = -15; x < 16; x++)
+                    World.SetBlock(x, cy, 0, null);
+                cy--;
+                for (int x = -15; x < 16; x++)
+                    World.SetBlock(x, cy, 0, null);
+                cy--;
+                if (cy < 0)
+                        cy = 0;
+
+
+                foreach (var chunk in World.Chunks)
+                {
+                    World.UpdateQueue.Add(UpdateEntry.UpdateChunk(chunk.Value));
+                }*/
+            }
         }
 
-        public override void OnDebugDraw()
+       /* public override void OnDebugDraw()
         {
             var start = Actor.Transform.Translation / Chunk.BLOCK_SIZE_CM;
             var end = start + Actor.Transform.Forward * 8;
 
             DebugDraw.DrawLine(start * Chunk.BLOCK_SIZE_CM, end * Chunk.BLOCK_SIZE_CM, Color.Blue);
-        }
+        }*/
 
-        DateTime lastBuildTime = DateTime.MinValue;
-        DateTime lastDestroyTime = DateTime.MinValue;
+        /*DateTime lastBuildTime = DateTime.MinValue;
+        DateTime lastDestroyTime = DateTime.MinValue;*/
 
         public override void OnFixedUpdate()
         {
@@ -58,7 +106,7 @@ namespace BasicTemplate
 
             Actor.Transform = camTrans;
 
-            var start = Actor.Transform.Translation / Chunk.BLOCK_SIZE_CM;
+           /* var start = Actor.Transform.Translation / Chunk.BLOCK_SIZE_CM;
             var end = start + Actor.Transform.Forward * 8;
 
             if (VoxelWorld == null || SelectedCubeActor == null) return;
@@ -74,11 +122,6 @@ namespace BasicTemplate
             SelectedCubeActor.Transform = tt;
             var now = DateTime.Now;
 
-            if (Input.GetKeyDown(Keys.Q))
-                MainRenderTask.Instance.View.Mode = ViewMode.Wireframe;
-            if (Input.GetKeyDown(Keys.E))
-                MainRenderTask.Instance.View.Mode = ViewMode.Default;
-
             if ((Input.GetMouseButton(MouseButton.Right) || Input.GetMouseButtonDown(MouseButton.Right)) && now - lastBuildTime > TimeSpan.FromMilliseconds(200))
             {
                 VoxelWorld.AddBlock(hit.Position.X + hit.FaceNormal.X, hit.Position.Y + hit.FaceNormal.Y,
@@ -93,7 +136,7 @@ namespace BasicTemplate
             }
 
             if(Input.GetMouseButtonUp(MouseButton.Left)) lastDestroyTime = DateTime.MinValue;
-            if(Input.GetMouseButtonUp(MouseButton.Right)) lastBuildTime = DateTime.MinValue;
+            if(Input.GetMouseButtonUp(MouseButton.Right)) lastBuildTime = DateTime.MinValue;*/
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using FlaxEngine;
 
 namespace VoxelTerrain.Source
@@ -7,9 +8,7 @@ namespace VoxelTerrain.Source
 	public class Chunk : Script
     {
         public const int BLOCK_SIZE_CM = 10;
-        public const int MAX_HEIGHT = 64;
         public const int SEGMENT_SIZE = 16;
-        private const int SEGMENTS_PER_CHUNK = MAX_HEIGHT / SEGMENT_SIZE;
 
 
         public bool IsLoading = false;
@@ -23,13 +22,15 @@ namespace VoxelTerrain.Source
 
         public ChunkManager Manager;
 
+        public int SegmentCount = 0;
+
         public void Initialize(ChunkManager manager)
         {
             Manager = manager;
             var xMin = Actor.LocalPosition.X * Chunk.BLOCK_SIZE_CM;
             var xMax = xMin + Chunk.SEGMENT_SIZE * Chunk.BLOCK_SIZE_CM;
             var yMin = 0;
-            var yMax = Chunk.MAX_HEIGHT * Chunk.BLOCK_SIZE_CM;
+            var yMax = Segments.Count * Chunk.BLOCK_SIZE_CM;
             var zMin = Actor.LocalPosition.Z * Chunk.BLOCK_SIZE_CM;
             var zMax = zMin + Chunk.SEGMENT_SIZE * Chunk.BLOCK_SIZE_CM;
             Bounds = new BoundingBox(new Vector3(xMin, yMin, zMin), new Vector3(xMax, yMax, zMax));
@@ -47,15 +48,15 @@ namespace VoxelTerrain.Source
         }
 
         //public MaterialBase Material;
-        public ChunkSegment[] Segments = new ChunkSegment[SEGMENTS_PER_CHUNK];
+        public List<ChunkSegment> Segments = new List<ChunkSegment>();
 
         public override void OnAwake()
         {
-            for (var i = 0; i < SEGMENTS_PER_CHUNK; i++)
+            /*for (var i = 0; i < SEGMENTS_PER_CHUNK; i++)
             {
                 Segments[i] = new ChunkSegment(Actor, i * SEGMENT_SIZE, this);
                 //Segments[i].Material = Material;
-            }
+            }*/
         }
 
         public void GenerateChunk()
@@ -71,15 +72,15 @@ namespace VoxelTerrain.Source
 
         public void UpdateChunk()
         {
-            for (int i = 0; i < SEGMENTS_PER_CHUNK; i++)
-            {
-                Segments[i].GenerateSegment();
-            }
+            foreach (var t in Segments)
+                t.GenerateSegment();
         }
 
         private void SetColumn(int x, int z, int v)
         {
-            if(v >= MAX_HEIGHT || v < 0) return;
+            if(v < 0) return;
+
+            SpawnSegment(v / SEGMENT_SIZE);
 
             for (var y = 0; y < v; y++)
             {
@@ -90,38 +91,50 @@ namespace VoxelTerrain.Source
 
         public override void OnFixedUpdate()
         {
-            for (int i = 0; i < SEGMENTS_PER_CHUNK; i++)
-            {
-                Segments[i].Update();
-            }
+            foreach (var t in Segments)
+                t.Update();
         }
 
         public override void OnDestroy()
         {
-            for (int i = 0; i < SEGMENTS_PER_CHUNK; i++)
-            {
-                Segments[i].Destroy();
-            }
+            foreach (var t in Segments)
+                t.Destroy();
+
+            Segments.Clear();
         }
 
         public Block GetBlockRelative(int x, int y, int z)
         {
-            if (y < 0 || y >= SEGMENTS_PER_CHUNK * SEGMENT_SIZE) return null;
+            if (y < 0 || y >= SegmentCount * SEGMENT_SIZE) return null;
             if (x < 0 || x >= SEGMENT_SIZE) return null;
             if (z < 0 || z >= SEGMENT_SIZE) return null;
+
 
             return Segments[y / SEGMENT_SIZE].Data[x, y % SEGMENT_SIZE, z];
         }
 
+        private void SpawnSegment(int targetSegment)
+        {
+            while (SegmentCount < targetSegment + 1)
+            {
+                Segments.Add(new ChunkSegment(Actor, targetSegment * SEGMENT_SIZE, this));
+                SegmentCount++;
+            }
+        }
+
         public void SetBlockRelative(int x, int y, int z, Block block)
         {
-            if (y < 0 || y >= SEGMENTS_PER_CHUNK * SEGMENT_SIZE) return;
+            if (y < 0) return;
             if (x < 0 || x >= SEGMENT_SIZE) return;
             if (z < 0 || z >= SEGMENT_SIZE) return;
             Segments[y / SEGMENT_SIZE].Data[x, y % SEGMENT_SIZE, z] = block;
 
+            if (y >= SegmentCount * SEGMENT_SIZE) SpawnSegment(y / SEGMENT_SIZE);
+
             // Re-mesh self
             Manager.UpdateChunk(this);
+
+            // TODO: UpdateSegment only neighbor segments instead of whole chunks (up to 4x performance boost at worse 2x)
 
             // Re-mesh affected neighbor chunks
             if (x == 0)

@@ -26,10 +26,10 @@ namespace VoxelTerrain.Source
         public Chunk Parent;
 
         private StaticModel chunkModel;
-        private MeshCollider chunkCollider;
+        //private MeshCollider chunkCollider;
 
         private Model chunkMesh;
-        private CollisionData chunkCollisionData;
+        //private CollisionData chunkCollisionData;
 
         private ChunkMeshData latestMeshData = null;
 
@@ -40,16 +40,16 @@ namespace VoxelTerrain.Source
             chunkMesh = Content.CreateVirtualAsset<Model>();
             chunkMesh.SetupLODs(1);
 
-            chunkCollisionData = Content.CreateVirtualAsset<CollisionData>();
+            //chunkCollisionData = Content.CreateVirtualAsset<CollisionData>();
 
             // Create or reuse child model actor
             chunkModel = actor.AddChild<StaticModel>();
             chunkModel.Model = chunkMesh;
 
-            chunkCollider = actor.AddChild<MeshCollider>();
+            /*chunkCollider = actor.AddChild<MeshCollider>();
             chunkCollider.CollisionData = chunkCollisionData;
 
-            chunkCollider.IsActive = chunkModel.IsActive = false;
+            chunkCollider.IsActive = */chunkModel.IsActive = false;
         }
 
         public void Update()
@@ -74,7 +74,7 @@ namespace VoxelTerrain.Source
             Greedy(meshData);
 
             // Hide chunk with old data if chunk mesh is empty since we can't push empty mesh
-            chunkCollider.IsActive = chunkModel.IsActive = meshData.Triangles.Count > 0;
+            /*chunkCollider.IsActive = */chunkModel.IsActive = meshData.Triangles.Count > 0;
 
             // Early out (upload only if we have some mesh)
             if (meshData.Triangles.Count == 0) return;
@@ -82,43 +82,46 @@ namespace VoxelTerrain.Source
             // Wait until chunk is loaded
             // while(!chunkMesh.IsLoaded && chunkMesh.LoadedLODs < 1) Thread.Sleep(10);
 
-            // Update mesh
-            //chunkMesh.LODs[0].Meshes[0].UpdateMesh(meshData.Vertices.ToArray(), meshData.Triangles.ToArray(), meshData.Normals.ToArray());
+            // UpdateSegment mesh
+            //chunkMesh.LODs[0].Meshes[0].BuildMesh(meshData.Vertices.ToArray(), meshData.Triangles.ToArray(), meshData.Normals.ToArray());
 
-            // Update collisions
+            // UpdateSegment collisions
             // chunkCollisionData.CookCollision(CollisionDataType.TriangleMesh, chunkMesh);
             latestMeshData = meshData;
         }
 
         Block GetVoxelFace(int x, int y, int z, int side)
         {
+            // If in bounds of current segment
             if (x >= 0 && y >= 0 && z >= 0 && x < Chunk.SEGMENT_SIZE && y < Chunk.SEGMENT_SIZE &&
                 z < Chunk.SEGMENT_SIZE)
                 return Data[x, y, z];
 
+            var targetChunk = (yOffset + y) / Chunk.SEGMENT_SIZE;
+
             // Go to lower segment
             if (y < 0)
-                return yOffset == 0 ? null : Parent.Segments[(yOffset + y) / Chunk.SEGMENT_SIZE].Data[x, Chunk.SEGMENT_SIZE + y, z];
+                return yOffset == 0 ? null : Parent.Segments[targetChunk].Data[x, Chunk.SEGMENT_SIZE + y, z];
 
             // Go to upper segment
             if (y >= Chunk.SEGMENT_SIZE)
-                return (yOffset + y) / Chunk.SEGMENT_SIZE >= Parent.Segments.Length
+                return targetChunk >= Parent.SegmentCount
                     ? null
-                    : Parent.Segments[(yOffset + y) / Chunk.SEGMENT_SIZE].Data[x, y - Chunk.SEGMENT_SIZE, z];
+                    : Parent.Segments[targetChunk].Data[x, y - Chunk.SEGMENT_SIZE, z];
 
-            if (x < 0 && Parent.Manager.Chunks.TryGetValue(Parent.ChunkPosition - Int2.UnitX, out var neighbor))
-                return neighbor.Segments[(yOffset + y) / Chunk.SEGMENT_SIZE].Data[Chunk.SEGMENT_SIZE + x, y, z];
+            if (x < 0 && Parent.Manager.Chunks.TryGetValue(Parent.ChunkPosition - Int2.UnitX, out var neighbor) && neighbor.SegmentCount > targetChunk)
+                return neighbor.Segments[targetChunk].Data[Chunk.SEGMENT_SIZE + x, y, z];
 
             if (x >= Chunk.SEGMENT_SIZE &&
-                Parent.Manager.Chunks.TryGetValue(Parent.ChunkPosition + Int2.UnitX, out neighbor))
-                return neighbor.Segments[(yOffset + y) / Chunk.SEGMENT_SIZE].Data[x - Chunk.SEGMENT_SIZE, y, z];
+                Parent.Manager.Chunks.TryGetValue(Parent.ChunkPosition + Int2.UnitX, out neighbor) && neighbor.SegmentCount > targetChunk)
+                return neighbor.Segments[targetChunk].Data[x - Chunk.SEGMENT_SIZE, y, z];
 
-            if (z < 0 && Parent.Manager.Chunks.TryGetValue(Parent.ChunkPosition - Int2.UnitY, out neighbor))
-                return neighbor.Segments[(yOffset + y) / Chunk.SEGMENT_SIZE].Data[x, y, Chunk.SEGMENT_SIZE + z];
+            if (z < 0 && Parent.Manager.Chunks.TryGetValue(Parent.ChunkPosition - Int2.UnitY, out neighbor) && neighbor.SegmentCount > targetChunk)
+                return neighbor.Segments[targetChunk].Data[x, y, Chunk.SEGMENT_SIZE + z];
 
             if (z >= Chunk.SEGMENT_SIZE &&
-                Parent.Manager.Chunks.TryGetValue(Parent.ChunkPosition + Int2.UnitY, out neighbor))
-                return neighbor.Segments[(yOffset + y) / Chunk.SEGMENT_SIZE].Data[x, y, z - Chunk.SEGMENT_SIZE];
+                Parent.Manager.Chunks.TryGetValue(Parent.ChunkPosition + Int2.UnitY, out neighbor) && neighbor.SegmentCount > targetChunk)
+                return neighbor.Segments[targetChunk].Data[x, y, z - Chunk.SEGMENT_SIZE];
 
             return null;
         }

@@ -61,6 +61,12 @@
     <Compile Include="Source\PerlinNoise.cs" />
     <Compile Include="Source\PriorityQueue.cs" />
     <Compile Include="Source\TerrainGenerator.cs" />
+    <Compile Include="Source\FlaxVoxel\Blocks\Block.cs" />
+    <Compile Include="Source\FlaxVoxel\Chunks\ChunkSegment.cs" />
+    <Compile Include="Source\FlaxVoxel\Chunks\ChunkSegment.Meshing.cs" />
+    <Compile Include="Source\FlaxVoxel\Chunks\VoxelChunk.cs" />
+    <Compile Include="Source\FlaxVoxel\World\VoxelWorld.cs" />
+    <Compile Include="Source\FlaxVoxel\World\Updates\UpdateEntry.cs" />
     <Compile Include="Cache\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

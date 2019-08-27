@@ -96,15 +96,15 @@
 			"ParentID": "74a68a984824b4510d12589f199ad68f",
 			"Name": "Camera",
 			"StaticFlags": 0,
-			"Near": 0.10000000149011612
+			"Near": 1.0,
+			"Far": 25000.0
 		},
 		{
 			"TypeName": "BasicTemplate.FreeCamera",
 			"ID": "c46dea0a49792beafcf8fbb051749932",
 			"ParentID": "b0d72c3746caebca055e1f921ca21c7c",
 			"V": {
-	"VoxelWorld": "8c6a0916457f5ec3b9a23f9eb7693cc5",
-	"SelectedCubeActor": "274e7efe471d80a0678391a9dc45fd53",
+	"World": "cf0fdd7a42d3999bf87cccbbe031c131",
 	"MoveSpeed": 2.0,
 	"CameraSmoothing": 20.0
 }
@@ -142,7 +142,7 @@
 	"RenderCamera": "00000000000000000000000000000000",
 	"Distance": 500.0,
 	"Size": {
-		"X": 1090.8999,
+		"X": 270.724976,
 		"Y": 577.13
 	}
 }
@@ -228,7 +228,7 @@
 			"Name": "UIControl",
 			"Transform": {
 				"Translation": {
-					"X": 495.449951171875,
+					"X": 85.36248779296875,
 					"Y": 278.56500244140627,
 					"Z": 0.0
 				}
@@ -326,11 +326,13 @@
 			}
 		},
 		{
-			"TypeName": "VoxelTerrain.Source.ChunkManager",
-			"ID": "8c6a0916457f5ec3b9a23f9eb7693cc5",
+			"TypeName": "FlaxVoxel.VoxelWorld",
+			"ID": "cf0fdd7a42d3999bf87cccbbe031c131",
 			"ParentID": "e5e6d5c6427b82776faeba90851c9f6b",
 			"V": {
-	"DebugTextLabel": "f5bc9a3c433f0de118f13291547d05bf"
+	"Chunks": {},
+	"Material": "7d946f724cffb015b4268091089793d8",
+	"UpdateQueue": []
 }
 		},
 		{
