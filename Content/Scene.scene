@@ -100,22 +100,6 @@
 			"Far": 25000.0
 		},
 		{
-			"TypeName": "BasicTemplate.FreeCamera",
-			"ID": "c46dea0a49792beafcf8fbb051749932",
-			"ParentID": "b0d72c3746caebca055e1f921ca21c7c",
-			"V": {
-	"World": "cf0fdd7a42d3999bf87cccbbe031c131",
-	"MoveSpeed": 2.0,
-	"CameraSmoothing": 20.0
-}
-		},
-		{
-			"TypeName": "BasicTemplate.ExitOnEsc",
-			"ID": "4077751149c37a7da8ed51b86d2cafb4",
-			"ParentID": "b0d72c3746caebca055e1f921ca21c7c",
-			"V": {}
-		},
-		{
 			"TypeName": "FlaxEngine.UICanvas",
 			"ID": "95d047b1410cd5b7bc2439a1cb284240",
 			"ParentID": "b0d72c3746caebca055e1f921ca21c7c",
@@ -142,7 +126,7 @@
 	"RenderCamera": "00000000000000000000000000000000",
 	"Distance": 500.0,
 	"Size": {
-		"X": 270.724976,
+		"X": 1090.8999,
 		"Y": 577.13
 	}
 }
@@ -228,7 +212,7 @@
 			"Name": "UIControl",
 			"Transform": {
 				"Translation": {
-					"X": 85.36248779296875,
+					"X": 495.449951171875,
 					"Y": 278.56500244140627,
 					"Z": 0.0
 				}
@@ -327,7 +311,7 @@
 		},
 		{
 			"TypeName": "FlaxVoxel.VoxelWorld",
-			"ID": "cf0fdd7a42d3999bf87cccbbe031c131",
+			"ID": "aec7459749a7b994b2e8f48dee1b22e6",
 			"ParentID": "e5e6d5c6427b82776faeba90851c9f6b",
 			"V": {
 	"Chunks": {},
