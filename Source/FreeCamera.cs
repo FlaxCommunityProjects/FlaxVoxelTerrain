@@ -40,6 +40,8 @@ namespace BasicTemplate
             if (World !=  null && Input.GetKeyDown(Keys.Q))
             {
                 World.Chunks[Int2.Zero].GenerateChunk();
+                World.Chunks[new Int2(-1, 0)].GenerateChunk();
+                World.SetBlock(-1, 255, 0, new Block(){Color = Color32.Black, Id = 2, IsTransparent = false});
             }
 
         }

@@ -18,24 +18,24 @@ namespace FlaxVoxel
             {
                 for (int z = 0; z < VoxelWorld.Configuration.ChunkSegmentSize; z++)
                 {
-                    var air = 3.0f * Mathf.Sin(Mathf.Pi * z / 12.0f - Mathf.Pi * x * 0.1f) + 27;
+                    var h0 = 3.0f * Mathf.Sin(Mathf.Pi * (z + WorldPosition.Y) / 12.0f - Mathf.Pi * (x + WorldPosition.X) * 0.1f) + 27;
                     for (int y = 0; y < 32; y++)
                     {
-                        if (y > air + 1)
+                        if (y > h0 + 1)
                         {
                             SetBlock(x, y, z, null, false, false);
                             continue;
                         }
 
-                        if (air <= y)
+                        if (h0 <= y)
                         {
                             SetBlock(x,y,z, new Block { IsTransparent = false, Color = new Color32(0x23, 0xdd, 0x21, 255), Id = 1 }, false, false);
                             continue;
                         }
 
 
-                        var h2 = 2.0f * Mathf.Sin(Mathf.Pi * z * 0.25f - Mathf.Pi * x * 0.3f) + 20;
-                        if (h2 <= y)
+                        var h1 = 2.0f * Mathf.Sin(Mathf.Pi * (z + WorldPosition.Y) * 0.25f - Mathf.Pi * (x + WorldPosition.X) * 0.3f) + 20;
+                        if (h1 <= y)
                         {
                             SetBlock(x,y,z, new Block{IsTransparent = false, Color = new Color32(0x96, 0x4B, 0x00, 255), Id = 2}, false, false);
                             continue;

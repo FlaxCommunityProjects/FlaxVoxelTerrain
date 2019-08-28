@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FlaxEngine;
+using Object = FlaxEngine.Object;
 
 namespace FlaxVoxel
 {
@@ -41,7 +42,7 @@ namespace FlaxVoxel
 
             // Create or reuse child model actor
             _segmentActor = ParentChunk.Actor.AddChild<StaticModel>();
-
+            _segmentActor.Name = "Segment " + _segmentIndex;
             // Move chunk segment to proper y offset
             _segmentActor.LocalPosition = new Vector3(0, _segmentIndex * VoxelWorld.Configuration.ChunkSegmentSize, 0);
 
@@ -52,6 +53,22 @@ namespace FlaxVoxel
 
             _chunkMesh.SetupMaterialSlots(1);
             _chunkMesh.MaterialSlots[0].Material = ParentChunk.World.Material;
+        }
+
+        private void DestroyMesh()
+        {
+            if (_segmentActor)
+            {
+                Object.Destroy(_segmentActor);
+                _segmentActor = null;
+            }
+
+            if (_chunkMesh)
+            {
+                Object.Destroy(_chunkMesh);
+                _chunkMesh = null;
+            }
+
         }
 
         /// <summary>
@@ -66,6 +83,11 @@ namespace FlaxVoxel
             {
                 _chunkMesh.LODs[0].Meshes[0].UpdateMesh(_latestMeshData.Vertices.ToArray(), _latestMeshData.Indices.ToArray(), _latestMeshData.Normals.ToArray(), null, null, _latestMeshData.Colors.ToArray());
             }
+        }
+
+        public void OnDestroy()
+        {
+            DestroyMesh();
         }
 
         /// <summary>
@@ -171,9 +193,7 @@ namespace FlaxVoxel
                                 block2 = GetVoxelFace(x[0] + q[0], x[1] + q[1], x[2] + q[2], side);
 
 
-                                mask[n++] = ((block != null && block2 != null && block.Equals(block2)))
-                                            ? null
-                                            : backFace ? block2 : block;
+                                mask[n++] = block != null && block2 != null && !block.IsTransparent && !block2.IsTransparent ? null : backFace ? block2 : block;
                             }
                         }
 

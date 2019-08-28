@@ -31,6 +31,7 @@ namespace FlaxVoxel
             var chunk = chunkActor.AddScript<VoxelChunk>();
             chunk.WorldPosition = new Int2(-1, 0);
             chunkActor.LocalPosition = new Vector3(-16, 0,0);
+            chunkActor.Name = $"Chunk[{chunk.WorldPosition.X},{chunk.WorldPosition.Y}]";
             chunk.World = this;
             Chunks.TryAdd(chunk.WorldPosition, chunk);
 
@@ -38,6 +39,7 @@ namespace FlaxVoxel
             chunk = chunkActor.AddScript<VoxelChunk>();
             chunk.WorldPosition = new Int2(0, 0);
             chunkActor.LocalPosition = new Vector3(0, 0,0);
+            chunkActor.Name = $"Chunk[{chunk.WorldPosition.X},{chunk.WorldPosition.Y}]";
             chunk.World = this;
             Chunks.TryAdd(chunk.WorldPosition, chunk);
         }

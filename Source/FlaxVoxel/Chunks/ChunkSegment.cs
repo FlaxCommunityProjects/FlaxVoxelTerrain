@@ -23,6 +23,9 @@ namespace FlaxVoxel
         private int _maxX = int.MinValue;
         private int _maxY = int.MinValue;
         private int _maxZ = int.MinValue;
+
+        public bool IsEmpty => _isEmpty;
+
         public ChunkSegment(VoxelChunk parent, int segmentSegmentIndex)
         {
             ParentChunk = parent;

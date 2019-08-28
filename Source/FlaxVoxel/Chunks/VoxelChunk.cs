@@ -7,19 +7,28 @@ using FlaxEngine;
 
 namespace FlaxVoxel
 {
-    // TODO: Despawn empty segments
-    // TODO: Instead of Segments.Count use local cached variable (might be faster)
     public partial class VoxelChunk : Script
     {
-        public readonly List<ChunkSegment> Segments = new List<ChunkSegment>();
+        //public readonly List<ChunkSegment> _segments = new List<ChunkSegment>();
+        private ChunkSegment[] _segments = new ChunkSegment[0];
         public VoxelWorld World;
+
         // TODO: Readonly
         public Int2 WorldPosition;
 
         public override void OnUpdate()
         {
-            foreach (var segment in Segments)
-                segment.OnUpdate();
+            foreach (var segment in _segments)
+                segment?.OnUpdate();
+
+            // Clean empty chunks
+            for (var i = 0; i < _segments.Length; i++)
+            {
+                var segment = _segments[i];
+                if (segment == null || !segment.IsEmpty) continue;
+                segment.OnDestroy();
+                _segments[i] = null;
+            }
         }
 
         /// <summary>
@@ -31,7 +40,7 @@ namespace FlaxVoxel
         {
             if (y < 0) return null;
             var chunkIndex = y / VoxelWorld.Configuration.ChunkSegmentSize;
-            return chunkIndex < Segments.Count ? Segments[chunkIndex] : null;
+            return chunkIndex < _segments.Length ? _segments[chunkIndex] : null;
         }
 
         /// <summary>
@@ -42,40 +51,52 @@ namespace FlaxVoxel
         public ChunkSegment GetChunkSegmentIndex(int i)
         {
             if (i < 0) return null;
-            return i < Segments.Count ? Segments[i] : null;
+            return i < _segments.Length ? _segments[i] : null;
         }
 
         public void SetBlock(int x, int y, int z, Block block, bool chunkUpdate = true, bool updateNeighbors = true)
         {
             if(x < 0 || y < 0 || z < 0 || x >= VoxelWorld.Configuration.ChunkSegmentSize || z >= VoxelWorld.Configuration.ChunkSegmentSize) return;
 
-            var chunkIndex = y / VoxelWorld.Configuration.ChunkSegmentSize;
-            if (chunkIndex <= Segments.Count) SpawnSegments(chunkIndex+1);
+            var segmentIndex = y / VoxelWorld.Configuration.ChunkSegmentSize;
+
+            // Resize array
+            if (_segments.Length <= segmentIndex) SpawnSegments(segmentIndex+1);
 
             var rY = y % VoxelWorld.Configuration.ChunkSegmentSize;
-            Segments[chunkIndex].SetBlock(x, rY, z, block, chunkUpdate, updateNeighbors);
+
+            var segment = _segments[segmentIndex] ?? (_segments[segmentIndex] = new ChunkSegment(this, segmentIndex));
+
+            segment.SetBlock(x, rY, z, block, chunkUpdate, updateNeighbors);
         }
 
         public Block GetBlock(int x, int y, int z)
         {
-            if (x < 0 || y < 0 || z < 0 || x >= VoxelWorld.Configuration.ChunkSegmentSize || z >= VoxelWorld.Configuration.ChunkSegmentSize || y >= VoxelWorld.Configuration.ChunkSegmentSize * Segments.Count) return null;
+            if (x < 0 || y < 0 || z < 0 || x >= VoxelWorld.Configuration.ChunkSegmentSize || z >= VoxelWorld.Configuration.ChunkSegmentSize || y >= VoxelWorld.Configuration.ChunkSegmentSize * _segments.Length) return null;
 
             var chunkIndex = y / VoxelWorld.Configuration.ChunkSegmentSize;
             var rY = y % VoxelWorld.Configuration.ChunkSegmentSize;
 
-            return Segments[chunkIndex].GetBlock(x, rY, z);
+            return _segments[chunkIndex]?.GetBlock(x, rY, z);
         }
 
         public void UpdateChunk()
         {
-            foreach (var segment in Segments)
-                segment.UpdateSegment();
+            foreach (var segment in _segments)
+                segment?.UpdateSegment();
         }
 
         private void SpawnSegments(int targetChunkCount)
         {
-            while (targetChunkCount > Segments.Count)
-                Segments.Add(new ChunkSegment(this, Segments.Count));
+            // TODO: Probably resize in buckets instead of direct fit
+            // var segmStart = _segments.Length;
+            // Resize if needed
+            if(targetChunkCount > _segments.Length)
+                Array.Resize(ref _segments, targetChunkCount);
+
+            // NOTE: Spawning code moved to SetBlock to allow for sparse spawning
+            /*for (var i = segmStart; i < targetChunkCount; i++)
+                _segments[i] = new ChunkSegment(this, i);*/
         }
     }
 }
