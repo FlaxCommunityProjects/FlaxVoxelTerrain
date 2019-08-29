@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FlaxEngine;
+using FlaxVoxel.TerraGen;
 
 namespace FlaxVoxel
 {
@@ -17,6 +18,8 @@ namespace FlaxVoxel
             public const int WorldScale = 10;
         }
 
+        public readonly int Seed = 1234;
+        public BiomeMap BiomeDiagram;
         public readonly ConcurrentDictionary<Int2, VoxelChunk> Chunks = new ConcurrentDictionary<Int2, VoxelChunk>();
 
         public MaterialBase Material;
@@ -26,22 +29,7 @@ namespace FlaxVoxel
         {
             Actor.Scale = new Vector3(Configuration.WorldScale);
 
-            // TODO: TEMP, USE PROPER SPAWNING RUTINE
-            var chunkActor = Actor.AddChild<EmptyActor>();
-            var chunk = chunkActor.AddScript<VoxelChunk>();
-            chunk.WorldPosition = new Int2(-1, 0);
-            chunkActor.LocalPosition = new Vector3(-16, 0,0);
-            chunkActor.Name = $"Chunk[{chunk.WorldPosition.X},{chunk.WorldPosition.Y}]";
-            chunk.World = this;
-            Chunks.TryAdd(chunk.WorldPosition, chunk);
-
-            chunkActor = Actor.AddChild<EmptyActor>();
-            chunk = chunkActor.AddScript<VoxelChunk>();
-            chunk.WorldPosition = new Int2(0, 0);
-            chunkActor.LocalPosition = new Vector3(0, 0,0);
-            chunkActor.Name = $"Chunk[{chunk.WorldPosition.X},{chunk.WorldPosition.Y}]";
-            chunk.World = this;
-            Chunks.TryAdd(chunk.WorldPosition, chunk);
+            BiomeDiagram = new BiomeMap(Seed);
         }
 
         public override void OnUpdate()

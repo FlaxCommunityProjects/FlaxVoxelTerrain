@@ -2,6 +2,8 @@ using System;
 using FlaxEngine;
 using FlaxEngine.Rendering;
 using FlaxVoxel;
+using FlaxVoxel.TerraGen;
+
 //using VoxelTerrain.Source;
 
 namespace BasicTemplate
@@ -21,7 +23,14 @@ namespace BasicTemplate
         public Actor SelectedCubeActor;*/
 
         public VoxelWorld World;
-        private int cy = 0;
+        private  TestingGenerator testGen = new TestingGenerator();
+        public override void OnStart()
+        {
+            testGen = new TestingGenerator();
+            testGen.Initialize(World);
+        }
+
+        private int ci = 0;
         public override void OnUpdate()
         {
            /* Screen.CursorVisible = false;
@@ -39,9 +48,21 @@ namespace BasicTemplate
 
             if (World !=  null && Input.GetKeyDown(Keys.Q))
             {
-                World.Chunks[Int2.Zero].GenerateChunk();
-                World.Chunks[new Int2(-1, 0)].GenerateChunk();
-                World.SetBlock(-1, 255, 0, new Block(){Color = Color32.Black, Id = 2, IsTransparent = false});
+                /*testGen.GenerateChunk(World, new Int2(cx++,cz));
+                if (cx > 10)
+                {
+                    cx = -10;
+                    cz++;
+                }*/
+                for (int i = ci; i < 10+ci; i++)
+                {
+                    for (int j = 0; j < 3; j++)
+                    {
+                        testGen.GenerateChunk(World, new Int2(i, j));
+                    }
+                }
+
+                ci += 10;
             }
 
         }
