@@ -5,12 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FlaxEngine;
-using FlaxVoxel.TerraGen;
 
 namespace FlaxVoxel
 {
     // TODO: Implement actor pooling instead of New<> and Destroy<> ?
-    public class VoxelWorld : Script
+    public partial class VoxelWorld : Script
     {
         public class Configuration
         {
@@ -18,37 +17,25 @@ namespace FlaxVoxel
             public const int WorldScale = 10;
         }
 
-        public readonly int Seed = 1234;
-        public BiomeMap BiomeDiagram;
         public readonly ConcurrentDictionary<Int2, VoxelChunk> Chunks = new ConcurrentDictionary<Int2, VoxelChunk>();
 
-        public MaterialBase Material;
-        // TODO: Create concurrent & sorted by priority
-        public readonly List<UpdateEntry> UpdateQueue = new List<UpdateEntry>();
+        public MaterialBase OpaqueMaterial;
+        public MaterialBase TransparentMaterial;
         public override void OnStart()
         {
             Actor.Scale = new Vector3(Configuration.WorldScale);
+            //StartQueues();
+        }
 
-            BiomeDiagram = new BiomeMap(Seed);
+        public override void OnDestroy()
+        {
+            //StopQueues();
         }
 
         public override void OnUpdate()
         {
-            foreach (var entry in UpdateQueue)
-            {
-                if (entry.IsChunkUpdate)
-                {
-                    if (entry.ChunkPosition.HasValue && Chunks.TryGetValue(entry.ChunkPosition.Value, out var chunk)) chunk.UpdateChunk();
-                    else entry.Chunk?.UpdateChunk();
-                }
-
-                if (entry.IsSegmentUpdate)
-                {
-                    if (entry.SegmentIndex>=0 && entry.ChunkPosition.HasValue && Chunks.TryGetValue(entry.ChunkPosition.Value, out var chunk)) chunk.GetChunkSegment(entry.SegmentIndex)?.UpdateSegment();
-                    else entry.Segment?.UpdateSegment();
-                }
-            }
-            UpdateQueue.Clear();
+            while (UpdateQueue.TryDequeue(out var entry))
+                entry.PerformUpdate(this);
         }
 
         /// <summary>
@@ -78,8 +65,11 @@ namespace FlaxVoxel
             var offsetX = x >= 0 ? 0 : Configuration.ChunkSegmentSize;
             var offsetZ = z >= 0 ? 0 : Configuration.ChunkSegmentSize;
 
+            var blockOffsetX = x >= 0 ? 0 : Configuration.ChunkSegmentSize - 1;
+            var blockOffsetZ = z >= 0 ? 0 : Configuration.ChunkSegmentSize - 1;
+
             if (Chunks.TryGetValue(new Int2((x - offsetX) / Configuration.ChunkSegmentSize, (z - offsetZ) / Configuration.ChunkSegmentSize), out var chunk))
-                chunk.SetBlock(offsetX + x % Configuration.ChunkSegmentSize, y, offsetZ + z % Configuration.ChunkSegmentSize, block, chunkUpdate, updateNeighbors);
+                chunk.SetBlock(blockOffsetX + x % Configuration.ChunkSegmentSize, y, blockOffsetZ + z % Configuration.ChunkSegmentSize, block, chunkUpdate, updateNeighbors);
         }
     }
 }
