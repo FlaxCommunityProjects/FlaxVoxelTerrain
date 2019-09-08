@@ -1,7 +1,7 @@
 {
 	"ID": "74a68a984824b4510d12589f199ad68f",
 	"TypeName": "FlaxEngine.SceneAsset",
-	"EngineBuild": 6184,
+	"EngineBuild": 6185,
 	"Data": [
 		{
 			"TypeName": "FlaxEngine.Scene",
@@ -136,8 +136,8 @@
 	"RenderCamera": "00000000000000000000000000000000",
 	"Distance": 500.0,
 	"Size": {
-		"X": 1090.8999,
-		"Y": 577.13
+		"X": 458.800049,
+		"Y": 215.75
 	}
 }
 		},
@@ -222,8 +222,8 @@
 			"Name": "UIControl",
 			"Transform": {
 				"Translation": {
-					"X": 495.449951171875,
-					"Y": 278.56500244140627,
+					"X": 179.4000244140625,
+					"Y": 97.875,
 					"Z": 0.0
 				}
 			},
@@ -324,8 +324,10 @@
 			"ID": "aec7459749a7b994b2e8f48dee1b22e6",
 			"ParentID": "e5e6d5c6427b82776faeba90851c9f6b",
 			"V": {
+	"Seed": 1234,
 	"Chunks": {},
-	"Material": "7d946f724cffb015b4268091089793d8",
+	"OpaqueMaterial": "7d946f724cffb015b4268091089793d8",
+	"TransparentMaterial": "04e1dbe84dabff4e1c878cb951489f0f",
 	"UpdateQueue": []
 }
 		},
