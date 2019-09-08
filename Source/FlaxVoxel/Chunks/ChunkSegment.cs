@@ -75,21 +75,21 @@ namespace FlaxVoxel
 
             // Update self mesh
             if(chunkUpdate)
-                ParentChunk.World.UpdateQueue.Add(UpdateEntry.UpdateSegment(this));
+                ParentChunk.World.UpdateQueue.Enqueue(new ReMeshChunkSegment(this));
 
             if(!updateNeighbors) return;
 
             // Handle X neighbors
-            if (x == 0) ParentChunk.World.UpdateQueue.Add(UpdateEntry.UpdateSegment(ParentChunk.WorldPosition - Int2.UnitX, _segmentIndex));
-            if (x == VoxelWorld.Configuration.ChunkSegmentSize - 1) ParentChunk.World.UpdateQueue.Add(UpdateEntry.UpdateSegment(ParentChunk.WorldPosition + Int2.UnitX, _segmentIndex));
+            if (x == 0) ParentChunk.World.UpdateQueue.Enqueue(new ReMeshChunkSegment(ParentChunk.WorldPosition - Int2.UnitX, _segmentIndex));
+            if (x == VoxelWorld.Configuration.ChunkSegmentSize - 1) ParentChunk.World.UpdateQueue.Enqueue(new ReMeshChunkSegment(ParentChunk.WorldPosition + Int2.UnitX, _segmentIndex));
 
             // Handle Y neighbors
-            if (y == 0) ParentChunk.World.UpdateQueue.Add(UpdateEntry.UpdateSegment(ParentChunk.WorldPosition, _segmentIndex - 1));
-            if (y == VoxelWorld.Configuration.ChunkSegmentSize - 1) ParentChunk.World.UpdateQueue.Add(UpdateEntry.UpdateSegment(ParentChunk.WorldPosition, _segmentIndex + 1));
+            if (y == 0) ParentChunk.World.UpdateQueue.Enqueue(new ReMeshChunkSegment(ParentChunk.WorldPosition, _segmentIndex - 1));
+            if (y == VoxelWorld.Configuration.ChunkSegmentSize - 1) ParentChunk.World.UpdateQueue.Enqueue(new ReMeshChunkSegment(ParentChunk.WorldPosition, _segmentIndex + 1));
 
             // Handle Z neighbors
-            if (z == 0) ParentChunk.World.UpdateQueue.Add(UpdateEntry.UpdateSegment(ParentChunk.WorldPosition - Int2.UnitY, _segmentIndex));
-            if (z == VoxelWorld.Configuration.ChunkSegmentSize - 1) ParentChunk.World.UpdateQueue.Add(UpdateEntry.UpdateSegment(ParentChunk.WorldPosition + Int2.UnitY, _segmentIndex));
+            if (z == 0) ParentChunk.World.UpdateQueue.Enqueue(new ReMeshChunkSegment(ParentChunk.WorldPosition - Int2.UnitY, _segmentIndex));
+            if (z == VoxelWorld.Configuration.ChunkSegmentSize - 1) ParentChunk.World.UpdateQueue.Enqueue(new ReMeshChunkSegment(ParentChunk.WorldPosition + Int2.UnitY, _segmentIndex));
         }
 
         public Block GetBlock(int x, int y, int z)

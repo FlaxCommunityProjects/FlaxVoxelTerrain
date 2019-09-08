@@ -47,7 +47,7 @@ namespace VoxelTerrain.Source
             DebugDraw.DrawWireBox(Bounds, color);
         }
 
-        //public MaterialBase Material;
+        //public MaterialBase OpaqueMaterial;
         public List<ChunkSegment> Segments = new List<ChunkSegment>();
 
         public override void OnAwake()
@@ -55,7 +55,7 @@ namespace VoxelTerrain.Source
             /*for (var i = 0; i < SEGMENTS_PER_CHUNK; i++)
             {
                 Segments[i] = new ChunkSegment(Actor, i * SEGMENT_SIZE, this);
-                //Segments[i].Material = Material;
+                //Segments[i].OpaqueMaterial = OpaqueMaterial;
             }*/
         }
 

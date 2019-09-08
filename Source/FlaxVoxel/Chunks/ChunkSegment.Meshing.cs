@@ -22,10 +22,18 @@ namespace FlaxVoxel
 
         private class MeshData
         {
-            public readonly List<Vector3> Vertices = new List<Vector3>();
-            public readonly List<Vector3> Normals = new List<Vector3>();
-            public readonly List<Color32> Colors = new List<Color32>();
-            public readonly List<int> Indices = new List<int>();
+            public MeshEntry[] Entries = new[] {new MeshEntry(), new MeshEntry()};
+
+            public MeshEntry Opaque => Entries[0];
+            public MeshEntry Transparent => Entries[1];
+
+            public class MeshEntry
+            {
+                public readonly List<Vector3> Vertices = new List<Vector3>();
+                public readonly List<Vector3> Normals = new List<Vector3>();
+                public readonly List<Color32> Colors = new List<Color32>();
+                public readonly List<int> Indices = new List<int>();
+            }
         }
 
         private Model _chunkMesh = null;
@@ -38,7 +46,7 @@ namespace FlaxVoxel
         private void InitializeMesh()
         {
             _chunkMesh = Content.CreateVirtualAsset<Model>();
-            _chunkMesh.SetupLODs(1);
+            _chunkMesh.SetupLODs(2);
 
             // Create or reuse child model actor
             _segmentActor = ParentChunk.Actor.AddChild<StaticModel>();
@@ -46,13 +54,22 @@ namespace FlaxVoxel
             // Move chunk segment to proper y offset
             _segmentActor.LocalPosition = new Vector3(0, _segmentIndex * VoxelWorld.Configuration.ChunkSegmentSize, 0);
 
+            _chunkMesh.SetupMaterialSlots(1);
+            /*_chunkMesh.MaterialSlots[0].Material = ParentChunk.World.OpaqueMaterial;
+            _chunkMesh.MaterialSlots[1].Material = ParentChunk.World.TransparentMaterial;*/
+
+            _segmentActor.EntriesChanged += m =>
+            {
+                if (_segmentActor.Entries.Length == 0) return;
+                _segmentActor.Entries[0].Material = ParentChunk.World.OpaqueMaterial;
+
+                if (_segmentActor.Entries.Length == 1) return;
+                _segmentActor.Entries[1].Material = ParentChunk.World.OpaqueMaterial;
+            };
+
             _segmentActor.Model = _chunkMesh;
-            _segmentActor.IsActive = false;
             _segmentActor.HideFlags = HideFlags.None;
             _segmentActor.StaticFlags = StaticFlags.FullyStatic;
-
-            _chunkMesh.SetupMaterialSlots(1);
-            _chunkMesh.MaterialSlots[0].Material = ParentChunk.World.Material;
         }
 
         private void DestroyMesh()
@@ -79,10 +96,26 @@ namespace FlaxVoxel
         /// </remarks>
         public void OnUpdate()
         {
-            if (_chunkMesh && _latestMeshData != null)
+            if (!_chunkMesh || _latestMeshData == null) return;
+            var opaqueVisible = _segmentActor.Entries[0].Visible = _latestMeshData.Opaque.Indices.Count > 0;
+            if (opaqueVisible)
+                _chunkMesh.LODs[0].Meshes[0].UpdateMesh(_latestMeshData.Opaque.Vertices,
+                    _latestMeshData.Opaque.Indices, _latestMeshData.Opaque.Normals, null, null,
+                    _latestMeshData.Opaque.Colors);
+
+            if (_segmentActor.Entries.Length > 1)
             {
-                _chunkMesh.LODs[0].Meshes[0].UpdateMesh(_latestMeshData.Vertices.ToArray(), _latestMeshData.Indices.ToArray(), _latestMeshData.Normals.ToArray(), null, null, _latestMeshData.Colors.ToArray());
+
+                var transparentVisible =
+                    _segmentActor.Entries[1].Visible = _latestMeshData.Transparent.Indices.Count > 0;
+
+                if (transparentVisible)
+                    _chunkMesh.LODs[0].Meshes[1].UpdateMesh(_latestMeshData.Transparent.Vertices,
+                        _latestMeshData.Transparent.Indices, _latestMeshData.Transparent.Normals, null, null,
+                        _latestMeshData.Transparent.Colors);
             }
+
+            _latestMeshData = null;
         }
 
         public void OnDestroy()
@@ -96,12 +129,7 @@ namespace FlaxVoxel
         public void BuildMesh()
         {
             var meshData = GenerateMesh();
-
-            _segmentActor.IsActive = meshData.Indices.Count > 0;
-
-            // Only query mesh upload when we have valid mesh
-            if (meshData.Indices.Count > 0)
-                _latestMeshData = meshData;
+            _latestMeshData = meshData;
         }
 
         /// <summary>
@@ -133,7 +161,7 @@ namespace FlaxVoxel
             if (!yValid && xValid && zValid)
                 return ParentChunk.GetBlock(x, absY, z);
 
-            // Perform world-wide block lockup
+            // Perform world-wide block lookup
             var absX = VoxelWorld.Configuration.ChunkSegmentSize * ParentChunk.WorldPosition.X + x;
             var absZ = VoxelWorld.Configuration.ChunkSegmentSize * ParentChunk.WorldPosition.Y + z;
 
@@ -146,6 +174,10 @@ namespace FlaxVoxel
         /// <returns>Mesh representation of current chunk segment data</returns>
         private MeshData GenerateMesh()
         {
+            // TODO: Maybe move to GPU for mesh generation
+            // NOTE: At least 18x18x18 cube of data (segment + neighboring slices)
+            // Investigate if management costs won't be higher than running on CPU
+
             var data = new MeshData();
             int i, j, k, l, w, h, u, v, n, side = 0;
 
@@ -193,7 +225,7 @@ namespace FlaxVoxel
                                 block2 = GetVoxelFace(x[0] + q[0], x[1] + q[1], x[2] + q[2], side);
 
 
-                                mask[n++] = block != null && block2 != null && !block.IsTransparent && !block2.IsTransparent ? null : backFace ? block2 : block;
+                                mask[n++] = (block != null && block2 != null && block.IsTransparent == block2.IsTransparent) ? null : backFace ? block2 : block;
                             }
                         }
 
@@ -225,7 +257,7 @@ namespace FlaxVoxel
                                         if (done) { break; }
                                     }
 
-                                    if (!mask[n].IsTransparent)
+                                    // if (!mask[n].IsTransparent)
                                     {
                                         x[u] = i;
                                         x[v] = j;
@@ -240,7 +272,7 @@ namespace FlaxVoxel
                                         dv[2] = 0;
                                         dv[v] = h;
 
-                                        Quad(data, new Vector3(x[0], x[1], x[2]),
+                                        Quad(data.Entries[mask[n].IsTransparent ? 1 : 0], new Vector3(x[0], x[1], x[2]),
                                              new Vector3(x[0] + du[0], x[1] + du[1], x[2] + du[2]),
                                              new Vector3(x[0] + du[0] + dv[0], x[1] + du[1] + dv[1], x[2] + du[2] + dv[2]),
                                              new Vector3(x[0] + dv[0], x[1] + dv[1], x[2] + dv[2]),
@@ -278,7 +310,7 @@ namespace FlaxVoxel
         /// <summary>
         /// Appends oriented quad to mesh
         /// </summary>
-        /// <param name="meshData">Instance of current mesh data we're filling</param>
+        /// <param name="meshEntry">Instance of current mesh data we're filling</param>
         /// <param name="bottomLeft">Bottom left position of the quad</param>
         /// <param name="topLeft">Top left position of the quad</param>
         /// <param name="topRight">Top right position of the quad</param>
@@ -290,7 +322,7 @@ namespace FlaxVoxel
         /// <remarks>
         /// Quad positions should be chunk segment relative (0-15 for each axis)
         /// </remarks>
-        private static void Quad(MeshData meshData, Vector3 bottomLeft,
+        private static void Quad(MeshData.MeshEntry meshEntry, Vector3 bottomLeft,
             Vector3 topLeft,
             Vector3 topRight,
             Vector3 bottomRight,
@@ -301,13 +333,13 @@ namespace FlaxVoxel
         {
 
             // Starting index of vertices
-            var offset = (int)meshData.Vertices.Count;
+            var offset = (int)meshEntry.Vertices.Count;
 
             // Append vertices
-            meshData.Vertices.AddRange(new[] { topLeft, topRight, bottomLeft, bottomRight });
+            meshEntry.Vertices.AddRange(new[] { topLeft, topRight, bottomLeft, bottomRight });
 
             // Append indices
-            meshData.Indices.AddRange(backFace ? new int[] { 2 + offset, 3 + offset, 1 + offset, 1 + offset, 0 + offset, 2 + offset } : new int[] { 2 + offset, 0 + offset, 1 + offset, 1 + offset, 3 + offset, 2 + offset });
+            meshEntry.Indices.AddRange(backFace ? new int[] { 2 + offset, 3 + offset, 1 + offset, 1 + offset, 0 + offset, 2 + offset } : new int[] { 2 + offset, 0 + offset, 1 + offset, 1 + offset, 3 + offset, 2 + offset });
 
             // Calculate normal
             var normal = Vector3.Normalize(Vector3.Cross(topRight - topLeft, bottomRight - topLeft));
@@ -317,10 +349,10 @@ namespace FlaxVoxel
                 normal *= -1;
 
             // Append normal
-            meshData.Normals.AddRange(new[] { normal, normal, normal, normal });
+            meshEntry.Normals.AddRange(new[] { normal, normal, normal, normal });
 
             // Append color
-            meshData.Colors.AddRange(new []{voxel.Color, voxel.Color, voxel.Color, voxel.Color});
+            meshEntry.Colors.AddRange(new []{voxel.Color, voxel.Color, voxel.Color, voxel.Color});
         }
     }
 }

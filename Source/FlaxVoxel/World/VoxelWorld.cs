@@ -15,6 +15,7 @@ namespace FlaxVoxel
         {
             public const int ChunkSegmentSize = 16;
             public const int WorldScale = 10;
+            public const int ChunkUpdateWorkers = 8;
         }
 
         public readonly ConcurrentDictionary<Int2, VoxelChunk> Chunks = new ConcurrentDictionary<Int2, VoxelChunk>();

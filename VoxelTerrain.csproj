@@ -22,8 +22,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>DEBUG;FLAX_ASSERTIONS;TRACE;FLAX_0;FLAX_0_5;FLAX_0_5_6184;FLAX_EDITOR;FLAX_WINDOWS;FLAX_EDITOR_WIN</DefineConstants>
-	<UseVSHostingProcess>false</UseVSHostingProcess>
+    <DefineConstants>DEBUG;FLAX_ASSERTIONS;TRACE;FLAX_0;FLAX_0_5;FLAX_0_5_6185;FLAX_EDITOR;FLAX_WINDOWS;FLAX_EDITOR_WIN</DefineConstants>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>portable</DebugType>
@@ -33,23 +33,26 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>TRACE;FLAX_0;FLAX_0_5;FLAX_0_5_6184;FLAX_EDITOR;FLAX_WINDOWS;FLAX_EDITOR_WIN</DefineConstants>
-	<UseVSHostingProcess>false</UseVSHostingProcess>
+    <DefineConstants>TRACE;FLAX_0;FLAX_0_5;FLAX_0_5_6185;FLAX_EDITOR;FLAX_WINDOWS;FLAX_EDITOR_WIN</DefineConstants>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
-	<Reference Include="FlaxEngine">
-		<HintPath>Cache\Assemblies\FlaxEngine.dll</HintPath>
-	</Reference>
-	<Reference Include="Newtonsoft.Json">
-		<HintPath>Cache\Assemblies\Newtonsoft.Json.dll</HintPath>
-	</Reference>
-	<Reference Include="FlaxEditor">
-		<HintPath>Cache\Assemblies\FlaxEditor.dll</HintPath>
-	</Reference>
+    <Reference Include="FlaxEngine">
+      <HintPath>Cache\Assemblies\FlaxEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>Cache\Assemblies\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="LibNoise">
+      <HintPath>Content\3rdparty\LibNoise.dll</HintPath>
+    </Reference>
+    <Reference Include="FlaxEditor">
+      <HintPath>Cache\Assemblies\FlaxEditor.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Source\Block.cs" />
@@ -57,6 +60,8 @@
     <Compile Include="Source\ChunkManager.cs" />
     <Compile Include="Source\ChunkSegment.cs" />
     <Compile Include="Source\ExitOnEsc.cs" />
+    <Compile Include="Source\FlaxVoxel\World\TerraGenesis\OpenSimplex.cs" />
+    <Compile Include="Source\FlaxVoxel\World\TerraGenesis\TerrainGenerator.cs" />
     <Compile Include="Source\FreeCamera.cs" />
     <Compile Include="Source\PerlinNoise.cs" />
     <Compile Include="Source\PriorityQueue.cs" />
@@ -67,26 +72,12 @@
     <Compile Include="Source\FlaxVoxel\Chunks\VoxelChunk.cs" />
     <Compile Include="Source\FlaxVoxel\Chunks\VoxelChunk.Generator.cs" />
     <Compile Include="Source\FlaxVoxel\World\VoxelWorld.cs" />
-    <Compile Include="Source\FlaxVoxel\World\TerraGen\TestingGenerator.cs" />
-    <Compile Include="Source\FlaxVoxel\World\TerraGen\Biomes\BiomeBase.cs" />
-    <Compile Include="Source\FlaxVoxel\World\TerraGen\Biomes\BiomeCell.cs" />
-    <Compile Include="Source\FlaxVoxel\World\TerraGen\Biomes\BiomeMap.cs" />
-    <Compile Include="Source\FlaxVoxel\World\TerraGen\Biomes\BiomeRepository.cs" />
-    <Compile Include="Source\FlaxVoxel\World\TerraGen\Biomes\Biomes.cs" />
-    <Compile Include="Source\FlaxVoxel\World\TerraGen\Biomes\DesertBiome.cs" />
-    <Compile Include="Source\FlaxVoxel\World\TerraGen\Biomes\PlainsBiome.cs" />
-    <Compile Include="Source\FlaxVoxel\World\TerraGen\Noise\CellNoise.cs" />
-    <Compile Include="Source\FlaxVoxel\World\TerraGen\Noise\ClampNoise.cs" />
-    <Compile Include="Source\FlaxVoxel\World\TerraGen\Noise\FractalBrownianMotion.cs" />
-    <Compile Include="Source\FlaxVoxel\World\TerraGen\Noise\InvertNoise.cs" />
-    <Compile Include="Source\FlaxVoxel\World\TerraGen\Noise\ModifyNoise.cs" />
-    <Compile Include="Source\FlaxVoxel\World\TerraGen\Noise\NoiseGen.cs" />
-    <Compile Include="Source\FlaxVoxel\World\TerraGen\Noise\OpenSimplex.cs" />
-    <Compile Include="Source\FlaxVoxel\World\TerraGen\Noise\Perlin.cs" />
-    <Compile Include="Source\FlaxVoxel\World\TerraGen\Noise\ScaleNoise.cs" />
-    <Compile Include="Source\FlaxVoxel\World\TerraGen\Vectors\Vector3D.cs" />
+    <Compile Include="Source\FlaxVoxel\World\VoxelWorld.Queues.cs" />
+    <Compile Include="Source\FlaxVoxel\World\Updates\ReMeshChunk.cs" />
+    <Compile Include="Source\FlaxVoxel\World\Updates\ReMeshChunkSegment.cs" />
     <Compile Include="Source\FlaxVoxel\World\Updates\UpdateEntry.cs" />
     <Compile Include="Cache\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-</Project>
+</Project>

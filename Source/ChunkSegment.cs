@@ -19,7 +19,7 @@ namespace VoxelTerrain.Source
         [HideInEditor] public Block[,,] Data = new Block[Chunk.SEGMENT_SIZE, Chunk.SEGMENT_SIZE, Chunk.SEGMENT_SIZE];
 
 
-        //public MaterialBase Material;
+        //public MaterialBase OpaqueMaterial;
 
 
         private readonly int yOffset = 0;

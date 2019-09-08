@@ -2,7 +2,6 @@ using System;
 using FlaxEngine;
 using FlaxEngine.Rendering;
 using FlaxVoxel;
-using FlaxVoxel.TerraGen;
 
 //using VoxelTerrain.Source;
 
@@ -23,14 +22,8 @@ namespace BasicTemplate
         public Actor SelectedCubeActor;*/
 
         public VoxelWorld World;
-        private  TestingGenerator testGen = new TestingGenerator();
-        public override void OnStart()
-        {
-            testGen = new TestingGenerator();
-            testGen.Initialize(World);
-        }
 
-        private int ci = 0;
+        private int ci = -4;
         public override void OnUpdate()
         {
            /* Screen.CursorVisible = false;
@@ -48,21 +41,37 @@ namespace BasicTemplate
 
             if (World !=  null && Input.GetKeyDown(Keys.Q))
             {
-                /*testGen.GenerateChunk(World, new Int2(cx++,cz));
-                if (cx > 10)
+                SpawnChunk(new Int2(-2, 0));
+                SpawnChunk(new Int2(-1, 0));
+                SpawnChunk(new Int2(0, 0));
+                
+               // World.SetBlock(-1,0,0, new Block(){Color = Color32.White, IsTransparent = false, Id =  0});
+                World.SetBlock(-15, 0,0, new Block(){Color = Color32.White, IsTransparent = false, Id =  0});
+                World.SetBlock(-16, 0,0, new Block(){Color = Color32.White, IsTransparent = false, Id =  0});
+                /*World.SetBlock(-14, 0,0, new Block(){Color = Color32.White, IsTransparent = false, Id =  0});
+                World.SetBlock(-17, 0,0, new Block(){Color = Color32.White, IsTransparent = false, Id =  0});*/
+               // World.SetBlock(-3, 0,0, new Block(){Color = Color32.White, IsTransparent = false, Id =  0});
+                /*for (int i = -3; i < 0; i++)
+                {
+                    for (int j = -3; j < 0; j++)
+                        testGen.GenerateChunk(World, new Int2(i, j));
+
+                }*/
+                //testGen.GenerateChunk(World, new Int2(0,0));
+                /*if (cx > 10)
                 {
                     cx = -10;
                     cz++;
                 }*/
-                for (int i = ci; i < 10+ci; i++)
+                /*for (int i = ci; i < ci+2; i++)
                 {
-                    for (int j = 0; j < 3; j++)
+                    for (int j = 0; j < 12; j++)
                     {
                         testGen.GenerateChunk(World, new Int2(i, j));
                     }
                 }
 
-                ci += 10;
+                ci += 2;*/
             }
 
         }
@@ -78,6 +87,17 @@ namespace BasicTemplate
         /*DateTime lastBuildTime = DateTime.MinValue;
         DateTime lastDestroyTime = DateTime.MinValue;*/
 
+        private VoxelChunk SpawnChunk(Int2 pos)
+        {
+            var chunkActor = World.Actor.AddChild<EmptyActor>();
+            var chunk = chunkActor.AddScript<VoxelChunk>();
+            chunk.WorldPosition = pos;
+            chunkActor.LocalPosition = new Vector3(pos.X * VoxelWorld.Configuration.ChunkSegmentSize, 0, pos.Y * VoxelWorld.Configuration.ChunkSegmentSize);
+            chunkActor.Name = $"Chunk[{chunk.WorldPosition.X},{chunk.WorldPosition.Y}]";
+            chunk.World = World;
+            World.Chunks.TryAdd(chunk.WorldPosition, chunk);
+            return chunk;
+        }
         public override void OnFixedUpdate()
         {
             var camTrans = Actor.Transform;

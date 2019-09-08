@@ -55,11 +55,11 @@ namespace FlaxVoxel
                 }
             }
 
-            World.UpdateQueue.Add(UpdateEntry.UpdateChunk(this));
-            World.UpdateQueue.Add(UpdateEntry.UpdateChunk(WorldPosition - Int2.UnitX));
-            World.UpdateQueue.Add(UpdateEntry.UpdateChunk(WorldPosition - Int2.UnitY));
-            World.UpdateQueue.Add(UpdateEntry.UpdateChunk(WorldPosition + Int2.UnitX));
-            World.UpdateQueue.Add(UpdateEntry.UpdateChunk(WorldPosition + Int2.UnitY));
+            World.UpdateQueue.Enqueue(new ReMeshChunk(this));
+            World.UpdateQueue.Enqueue(new ReMeshChunk(WorldPosition - Int2.UnitX));
+            World.UpdateQueue.Enqueue(new ReMeshChunk(WorldPosition - Int2.UnitY));
+            World.UpdateQueue.Enqueue(new ReMeshChunk(WorldPosition + Int2.UnitX));
+            World.UpdateQueue.Enqueue(new ReMeshChunk(WorldPosition + Int2.UnitY));
         }
     }
 }

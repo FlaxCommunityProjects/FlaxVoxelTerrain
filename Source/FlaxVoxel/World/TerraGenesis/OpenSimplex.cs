@@ -1,4 +1,5 @@
 ﻿using System;
+using LibNoise;
 
 namespace FlaxVoxel.TerraGen.Noise
 {
@@ -7,7 +8,7 @@ namespace FlaxVoxel.TerraGen.Noise
      * https://gist.github.com/KdotJPG/b1270127455a94ac5d19
      * Ported to C# by Danel "creatorfromhell" Vidmar.
      */
-    public class OpenSimplex : NoiseGen
+    public class OpenSimplex : IModule2D, IModule3D
     {
         private const double STRETCH_CONSTANT_2D = -0.211324865405187;
         private const double SQUISH_CONSTANT_2D = 0.366025403784439;
@@ -15,9 +16,9 @@ namespace FlaxVoxel.TerraGen.Noise
         private const double SQUISH_CONSTANT_3D = 1.0 / 3;
         private const double STRETCH_CONSTANT_4D = -0.138196601125011;
         private const double SQUISH_CONSTANT_4D = 0.309016994374947;
-        private const double NORM_CONSTANT_2D = 47;
-        private const double NORM_CONSTANT_3D = 103;
-        private const double NORM_CONSTANT_4D = 30;
+        private const float NORM_CONSTANT_2D = 47;
+        private const float NORM_CONSTANT_3D = 103;
+        private const float NORM_CONSTANT_4D = 30;
         private short[] Perm;
         private short[] PermGradIndex3D;
 
@@ -62,7 +63,7 @@ namespace FlaxVoxel.TerraGen.Noise
             }
         }
 
-        public override double Value2D(double X, double Y)
+        public float GetValue(float X, float Y)
         {
             //Place input coordinates onto grid.
             double StretchOffset = (X + Y) * STRETCH_CONSTANT_2D;
@@ -193,10 +194,10 @@ namespace FlaxVoxel.TerraGen.Noise
                 attn_ext *= attn_ext;
                 value += attn_ext * attn_ext * Extrapolate2D(xsv_ext, ysv_ext, dx_ext, dy_ext);
             }
-            return value / NORM_CONSTANT_2D;
+            return (float)value / NORM_CONSTANT_2D;
         }
 
-        public override double Value3D(double X, double Y, double Z)
+        public float GetValue(float X, float Y, float Z)
         {
             //Place input coordinates on simplectic honeycomb.
             double stretchOffset = (X + Y + Z) * STRETCH_CONSTANT_3D;
@@ -881,7 +882,7 @@ namespace FlaxVoxel.TerraGen.Noise
                 attn_ext1 *= attn_ext1;
                 value += attn_ext1 * attn_ext1 * Extrapolate3D(xsv_ext1, ysv_ext1, zsv_ext1, dx_ext1, dy_ext1, dz_ext1);
             }
-            return value / NORM_CONSTANT_3D;
+            return (float)value / NORM_CONSTANT_3D;
         }
 
         private double Extrapolate2D(int XS, int YS, double XD, double YD)
@@ -893,7 +894,12 @@ namespace FlaxVoxel.TerraGen.Noise
         {
             int Index = PermGradIndex3D[(Perm[(Perm[XS & 0xFF] + YS) & 0xFF] + ZS) & 0xFF];
             return Gradients3D[Index] * XD + Gradients3D[Index + 1] * YD + Gradients3D[Index + 2] * ZD;
-        } 
+        }
+
+        private int Floor(double value)
+        {
+            return (value >= 0.0 ? (int)value : (int)value - 1);
+        }
 
         private static short[] Gradients2D = new short[] {
             5, 2, 2, 5,
