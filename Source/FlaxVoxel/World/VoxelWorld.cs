@@ -31,22 +31,22 @@ namespace FlaxVoxel
         public override void OnStart()
         {
             Actor.Scale = new Vector3(Configuration.WorldScale);
-            //StartQueues();
+            StartQueues();
         }
 
         public override void OnDestroy()
         {
-            //StopQueues();
+            StopQueues();
         }
 
         public override void OnUpdate()
         {
             // Queue processing in sync (debug):
-            while (UpdateQueue.TryDequeue(out var entry))
+            /*while (UpdateQueue.TryDequeue(out var entry))
                 entry.PerformAction(this);
 
             while (GeneratorQueue.TryDequeue(out var entry))
-                entry.PerformAction(this);
+                entry.PerformAction(this);*/
         }
 
         /// <summary>
@@ -60,8 +60,12 @@ namespace FlaxVoxel
         {
             var offsetX = x >= 0 ? 0 : Configuration.ChunkSegmentSize;
             var offsetZ = z >= 0 ? 0 : Configuration.ChunkSegmentSize;
+
+            var blockOffsetX = x >= 0 ? 0 : Configuration.ChunkSegmentSize - 1;
+            var blockOffsetZ = z >= 0 ? 0 : Configuration.ChunkSegmentSize - 1;
+
             return Chunks.TryGetValue(new Int2((x - offsetX) / Configuration.ChunkSegmentSize, (z - offsetZ) / Configuration.ChunkSegmentSize),
-                out var chunk) ? chunk.GetBlock(offsetX + x % Configuration.ChunkSegmentSize, y, offsetZ + z % Configuration.ChunkSegmentSize) : null;
+                out var chunk) ? chunk.GetBlock(blockOffsetX + x % Configuration.ChunkSegmentSize, y, blockOffsetZ + z % Configuration.ChunkSegmentSize) : null;
         }
 
         /// <summary>
