@@ -8,7 +8,7 @@ using FlaxEngine;
 namespace FlaxVoxel
 {
     // TODO: Use custom XZ struct instead of XY so axes are correctly typed
-    public class ReMeshChunkSegment : UpdateEntry
+    public class ReMeshChunkSegment : IWorkerQueueEntry
     {
         private readonly Int3 _segmentPos;
         private readonly ChunkSegment _segment;
@@ -18,7 +18,7 @@ namespace FlaxVoxel
         public ReMeshChunkSegment(Int2 pos, int y) => _segmentPos = new Int3(pos, y);
         public ReMeshChunkSegment(int x, int z, int y) => _segmentPos = new Int3(x,z, y);
 
-        public override void PerformUpdate(VoxelWorld world)
+        public void PerformAction(VoxelWorld world)
         {
             if (_segment != null)
             {

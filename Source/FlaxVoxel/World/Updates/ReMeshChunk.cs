@@ -7,7 +7,7 @@ using FlaxEngine;
 
 namespace FlaxVoxel
 { 
-    public class ReMeshChunk : UpdateEntry
+    public class ReMeshChunk : IWorkerQueueEntry
     {
         private readonly VoxelChunk _chunk;
         private readonly Int2 _chunkPos;
@@ -15,7 +15,7 @@ namespace FlaxVoxel
         public ReMeshChunk(VoxelChunk chunk) => _chunk = chunk;
         public ReMeshChunk(Int2 chunkPos) => _chunkPos = chunkPos;
 
-        public override void PerformUpdate(VoxelWorld world)
+        public void PerformAction(VoxelWorld world)
         {
             // TODO: Check chunk internal state (do not update chunk which is unloaded/deprecated
             if (_chunk != null)

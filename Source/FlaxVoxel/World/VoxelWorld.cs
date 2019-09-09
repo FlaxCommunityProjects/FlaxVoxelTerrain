@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FlaxEngine;
+using FlaxVoxel.TerraGenesis;
 
 namespace FlaxVoxel
 {
@@ -15,13 +16,18 @@ namespace FlaxVoxel
         {
             public const int ChunkSegmentSize = 16;
             public const int WorldScale = 10;
-            public const int ChunkUpdateWorkers = 8;
         }
 
         public readonly ConcurrentDictionary<Int2, VoxelChunk> Chunks = new ConcurrentDictionary<Int2, VoxelChunk>();
-
+        public readonly TerrainGenerator Generator = new TerrainGenerator(1);
         public MaterialBase OpaqueMaterial;
         public MaterialBase TransparentMaterial;
+
+        public override void OnAwake()
+        {
+            InitializeQueues();
+        }
+
         public override void OnStart()
         {
             Actor.Scale = new Vector3(Configuration.WorldScale);
@@ -35,8 +41,12 @@ namespace FlaxVoxel
 
         public override void OnUpdate()
         {
+            // Queue processing in sync (debug):
             while (UpdateQueue.TryDequeue(out var entry))
-                entry.PerformUpdate(this);
+                entry.PerformAction(this);
+
+            while (GeneratorQueue.TryDequeue(out var entry))
+                entry.PerformAction(this);
         }
 
         /// <summary>
@@ -71,6 +81,18 @@ namespace FlaxVoxel
 
             if (Chunks.TryGetValue(new Int2((x - offsetX) / Configuration.ChunkSegmentSize, (z - offsetZ) / Configuration.ChunkSegmentSize), out var chunk))
                 chunk.SetBlock(blockOffsetX + x % Configuration.ChunkSegmentSize, y, blockOffsetZ + z % Configuration.ChunkSegmentSize, block, chunkUpdate, updateNeighbors);
+        }
+        public VoxelChunk SpawnChunk(Int2 chunkPos)
+        {
+            var chunkActor = Actor.AddChild<EmptyActor>();
+
+            var chunk = chunkActor.AddScript<VoxelChunk>();
+            chunk.WorldPosition = chunkPos;
+            chunkActor.LocalPosition = new Vector3(chunkPos.X * VoxelWorld.Configuration.ChunkSegmentSize, 0, chunkPos.Y * VoxelWorld.Configuration.ChunkSegmentSize);
+            chunkActor.Name = $"Chunk[{chunk.WorldPosition.X},{chunk.WorldPosition.Y}]";
+            chunk.World = this;
+            Chunks.TryAdd(chunk.WorldPosition, chunk);
+            return chunk;
         }
     }
 }

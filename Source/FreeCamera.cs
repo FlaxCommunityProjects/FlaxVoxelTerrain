@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using FlaxEngine;
 using FlaxEngine.Rendering;
 using FlaxVoxel;
+using FlaxVoxel.TerraGenesis;
 
 //using VoxelTerrain.Source;
 
@@ -41,37 +43,10 @@ namespace BasicTemplate
 
             if (World !=  null && Input.GetKeyDown(Keys.Q))
             {
-                SpawnChunk(new Int2(-2, 0));
-                SpawnChunk(new Int2(-1, 0));
-                SpawnChunk(new Int2(0, 0));
-                
-               // World.SetBlock(-1,0,0, new Block(){Color = Color32.White, IsTransparent = false, Id =  0});
-                World.SetBlock(-15, 0,0, new Block(){Color = Color32.White, IsTransparent = false, Id =  0});
-                World.SetBlock(-16, 0,0, new Block(){Color = Color32.White, IsTransparent = false, Id =  0});
-                /*World.SetBlock(-14, 0,0, new Block(){Color = Color32.White, IsTransparent = false, Id =  0});
-                World.SetBlock(-17, 0,0, new Block(){Color = Color32.White, IsTransparent = false, Id =  0});*/
-               // World.SetBlock(-3, 0,0, new Block(){Color = Color32.White, IsTransparent = false, Id =  0});
-                /*for (int i = -3; i < 0; i++)
-                {
-                    for (int j = -3; j < 0; j++)
-                        testGen.GenerateChunk(World, new Int2(i, j));
-
-                }*/
-                //testGen.GenerateChunk(World, new Int2(0,0));
-                /*if (cx > 10)
-                {
-                    cx = -10;
-                    cz++;
-                }*/
-                /*for (int i = ci; i < ci+2; i++)
-                {
-                    for (int j = 0; j < 12; j++)
-                    {
-                        testGen.GenerateChunk(World, new Int2(i, j));
-                    }
-                }
-
-                ci += 2;*/
+                for (var x = 0; x < 3; x++)
+                    for (var z = 0; z < 3; z++)
+                       //World.GeneratorQueue.Enqueue(new GenerateChunk(World.SpawnChunk(new Int2(x, z))));
+                       World.GeneratorQueue.Enqueue(new GenerateChunk(new Int2(x,z)));
             }
 
         }

@@ -12,44 +12,24 @@ namespace FlaxVoxel
 {
     public partial class VoxelWorld
     {
-        // TODO: Sorting??
-        public readonly ConcurrentQueue<UpdateEntry> UpdateQueue = new ConcurrentQueue<UpdateEntry>();
-        private Thread[] UpdateThreads = new Thread[Configuration.ChunkUpdateWorkers];
-        private volatile bool Cancel = false;
+        [NoSerialize] public WorkerQueue<GenerateChunk> GeneratorQueue;
+        [NoSerialize] public WorkerQueue<IWorkerQueueEntry> UpdateQueue;
+        private void InitializeQueues()
+        {
+            GeneratorQueue = new WorkerQueue<GenerateChunk>(8, this);
+            UpdateQueue = new WorkerQueue<IWorkerQueueEntry>(8, this);
+        }
+
         private void StartQueues()
         {
-            for (var i = 0; i < Configuration.ChunkUpdateWorkers; i++)
-                UpdateThreads[i] = new Thread(UpdateWorker);
-
-            for (var i = 0; i < Configuration.ChunkUpdateWorkers; i++)
-                UpdateThreads[i].Start();
+            GeneratorQueue.Start();
+            UpdateQueue.Start();
         }
 
         private void StopQueues()
         {
-            Cancel = true;
-            for (var i = 0; i < Configuration.ChunkUpdateWorkers; i++)
-                UpdateThreads[i].Join();
-        }
-
-        private void UpdateWorker()
-        {
-            while (!Cancel)
-            {
-                if (UpdateQueue.TryDequeue(out var entry))
-                {
-                    Profiler.BeginEvent("Chunk update");
-                    
-                    entry.PerformUpdate(this); // TODO: Probably pass world instance in start since this might get moved to separate file and is not that intuitive
-
-                    Profiler.EndEvent();
-
-                    Thread.Sleep(25);
-                    return;
-                }
-
-                Thread.Sleep(250);
-            }
+            UpdateQueue.Stop();
+            GeneratorQueue.Stop();
         }
     }
 }

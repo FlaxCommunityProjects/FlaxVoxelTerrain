@@ -1,7 +1,7 @@
 ﻿using System;
 using LibNoise;
 
-namespace FlaxVoxel.TerraGen.Noise
+namespace LibNoise.Filter
 {
     /*
      * OpenSimplex was originally created by Kurt Spencer.
